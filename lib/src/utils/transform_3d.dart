@@ -2,18 +2,22 @@ import 'dart:math';
 import 'package:vector_math/vector_math.dart';
 
 class Transform3D {
+  final double scale;
   final double rotationX;
   final double rotationY;
   final double rotationZ;
-  final double scale;
+  final double positionX;
+  final double positionY;
   late Matrix4 _transformMatrix;
   double perspective;
 
   Transform3D({
+    this.scale = 1.0,
     this.rotationX = 0.0,
     this.rotationY = 0.0,
     this.rotationZ = 0.0,
-    this.scale = 1.0,
+    this.positionX = 0.0,
+    this.positionY = 0.0,
     this.perspective = 100.0,
   }) {
     _updateTransformMatrix();
@@ -59,16 +63,20 @@ class Transform3D {
   }
 
   Transform3D copyWith({
+    double? scale,
     double? rotationX,
     double? rotationY,
     double? rotationZ,
-    double? scale,
+    double? positionX,
+    double? positionY,
   }) {
     return Transform3D(
+      scale: scale ?? this.scale,
       rotationX: rotationX ?? this.rotationX,
       rotationY: rotationY ?? this.rotationY,
       rotationZ: rotationZ ?? this.rotationZ,
-      scale: scale ?? this.scale,
+      positionX: positionX ?? this.positionX,
+      positionY: positionY ?? this.positionY,
     );
   }
 

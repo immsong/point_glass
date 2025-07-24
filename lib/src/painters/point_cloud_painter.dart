@@ -1,7 +1,9 @@
 import 'dart:ui';
+
 import 'package:flutter/material.dart';
-import '../models/point_cloud.dart';
-import '../utils/transform_3d.dart';
+
+import 'package:point_glass/src/models/point_cloud/point_cloud.dart';
+import 'package:point_glass/src/utils/transform_3d.dart';
 
 class PointCloudPainter extends CustomPainter {
   final List<PointCloud> clouds;
@@ -12,7 +14,10 @@ class PointCloudPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.save();
-    canvas.translate(size.width / 2, size.height / 2);
+    canvas.translate(
+      size.width / 2 + transform.positionX,
+      size.height / 2 + transform.positionY,
+    );
 
     if (clouds.isEmpty) {
       canvas.restore();
