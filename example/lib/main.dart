@@ -32,6 +32,9 @@ class _MyHomePageState extends State<MyHomePage> {
   double gridSize = 20;
   double gridStep = 1;
 
+  double axisLength = 0.5;
+  bool axisOnOff = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,6 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   enableLabel: true,
                   labelStyle: TextStyle(color: Colors.white.withAlpha(150)),
                 ),
+                axis: PointGlassAxis(enable: axisOnOff, axisLength: axisLength),
               ),
             ),
             Expanded(child: _buildController()),
@@ -70,14 +74,19 @@ class _MyHomePageState extends State<MyHomePage> {
       height: double.infinity,
       child: Column(
         mainAxisSize: MainAxisSize.max,
-        children: [..._buildGridControlWidgets(), const Spacer(flex: 50)],
+        children: [
+          ..._buildGridControlWidgets(),
+          const Spacer(),
+          ..._buildAxisControlWidgets(),
+          const Spacer(flex: 50),
+        ],
       ),
     );
   }
 
   List<Widget> _buildGridControlWidgets() {
     return [
-      Expanded(child: Text('Grid Size')),
+      Expanded(child: Row(children: [Text('Grid Size'), const Spacer()])),
       Expanded(
         child: Row(
           children: [
@@ -98,7 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       const Spacer(),
-      Expanded(child: Text('Grid Step')),
+      Expanded(child: Row(children: [Text('Grid Step'), const Spacer()])),
       Expanded(
         child: Row(
           children: [
@@ -123,6 +132,61 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Text(gridStep.toString()),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildAxisControlWidgets() {
+    return [
+      Expanded(child: Row(children: [Text('Axis Length'), const Spacer()])),
+      Expanded(
+        child: Row(
+          children: [
+            Expanded(
+              child: Slider(
+                value: axisLength,
+                min: 0.5,
+                max: 5,
+                onChanged: (value) {
+                  setState(() {
+                    axisLength = (value * 2).round() / 2;
+                  });
+                },
+              ),
+            ),
+            Text(axisLength.toString()),
+          ],
+        ),
+      ),
+      const Spacer(),
+      Expanded(child: Row(children: [Text('Axis On / Off'), const Spacer()])),
+      Expanded(
+        child: Row(
+          children: [
+            Radio<bool>(
+              value: true,
+              groupValue: axisOnOff,
+              onChanged: (value) {
+                setState(() {
+                  axisOnOff = true;
+                });
+              },
+            ),
+            Text('On'),
+            const Spacer(),
+            Radio<bool>(
+              value: false,
+              groupValue: axisOnOff,
+              onChanged: (value) {
+                setState(() {
+                  axisOnOff = false;
+                });
+              },
+            ),
+            Text('Off'),
+            const Spacer(),
           ],
         ),
       ),
