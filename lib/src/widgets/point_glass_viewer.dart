@@ -1,10 +1,9 @@
-import 'dart:math';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
+import 'package:point_glass/src/models/point_glass_grid.dart';
 import 'package:point_glass/src/painters/point_glass_painter.dart';
 import 'package:point_glass/src/utils/transform_3d.dart';
 
@@ -20,6 +19,7 @@ class PointGlassViewer extends StatefulWidget {
     this.minScale = 1.0,
     this.maxScale = 1000.0,
     this.mode = PointGlassViewerMode.rotate,
+    this.grid,
   });
 
   final double initialScale;
@@ -29,6 +29,7 @@ class PointGlassViewer extends StatefulWidget {
   final double minScale;
   final double maxScale;
   final PointGlassViewerMode mode;
+  final PointGlassGrid? grid;
 
   @override
   State<PointGlassViewer> createState() => _PointGlassViewerState();
@@ -80,7 +81,12 @@ class _PointGlassViewerState extends State<PointGlassViewer> {
       child: GestureDetector(
         onScaleUpdate: _handleScaleUpdate, // 핀치 줌, 드레그 앤 드롭
         child: SizedBox.expand(
-          child: CustomPaint(painter: PointGlassPainter(transform: _transform)),
+          child: CustomPaint(
+            painter: PointGlassPainter(
+              transform: _transform,
+              grid: widget.grid ?? PointGlassGrid(),
+            ),
+          ),
         ),
       ),
     );
