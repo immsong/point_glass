@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:vector_math/vector_math.dart' as vm;
+
 import 'package:point_glass/point_glass.dart';
 
 void main() {
@@ -35,6 +37,47 @@ class _MyHomePageState extends State<MyHomePage> {
   double axisLength = 0.5;
   bool axisOnOff = true;
 
+  bool polygonOnOff = true;
+  List<PointGlassPolygon> polygons = [
+    // 삼각형
+    PointGlassPolygon(
+      enable: true,
+      points: [
+        vm.Vector3(-15, -10, 0),
+        vm.Vector3(-19.33, -2.5, 0),
+        vm.Vector3(-10.67, -2.5, 0),
+      ],
+      pointSize: 0.25,
+      pointColor: Colors.red,
+    ),
+    // 사각형
+    PointGlassPolygon(
+      enable: true,
+      points: [
+        vm.Vector3(10, -10, 0),
+        vm.Vector3(20, -10, 0),
+        vm.Vector3(20, 0, 0),
+        vm.Vector3(10, 0, 0),
+      ],
+      pointSize: 0.25,
+      pointColor: Colors.orange,
+    ),
+    // 육각형
+    PointGlassPolygon(
+      enable: true,
+      points: [
+        vm.Vector3(15, 5, 0),
+        vm.Vector3(10.67, 7.5, 0),
+        vm.Vector3(10.67, 12.5, 0),
+        vm.Vector3(15, 15, 0),
+        vm.Vector3(19.33, 12.5, 0),
+        vm.Vector3(19.33, 7.5, 0),
+      ],
+      pointSize: 0.25,
+      pointColor: Colors.green,
+    ),
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +100,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   labelStyle: TextStyle(color: Colors.white.withAlpha(150)),
                 ),
                 axis: PointGlassAxis(enable: axisOnOff, axisLength: axisLength),
+                polygons: polygons,
               ),
             ),
             Expanded(child: _buildController()),
@@ -78,6 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
           ..._buildGridControlWidgets(),
           const Spacer(),
           ..._buildAxisControlWidgets(),
+          const Spacer(),
+          ..._buildPolygonControlWidgets(),
           const Spacer(flex: 50),
         ],
       ),
@@ -182,6 +228,48 @@ class _MyHomePageState extends State<MyHomePage> {
               onChanged: (value) {
                 setState(() {
                   axisOnOff = false;
+                });
+              },
+            ),
+            Text('Off'),
+            const Spacer(),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _buildPolygonControlWidgets() {
+    return [
+      Expanded(
+        child: Row(children: [Text('Polygon On / Off'), const Spacer()]),
+      ),
+      Expanded(
+        child: Row(
+          children: [
+            Radio<bool>(
+              value: true,
+              groupValue: polygonOnOff,
+              onChanged: (value) {
+                setState(() {
+                  polygonOnOff = true;
+                  for (var polygon in polygons) {
+                    polygon.enable = true;
+                  }
+                });
+              },
+            ),
+            Text('On'),
+            const Spacer(),
+            Radio<bool>(
+              value: false,
+              groupValue: polygonOnOff,
+              onChanged: (value) {
+                setState(() {
+                  polygonOnOff = false;
+                  for (var polygon in polygons) {
+                    polygon.enable = false;
+                  }
                 });
               },
             ),

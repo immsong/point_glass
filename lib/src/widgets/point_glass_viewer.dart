@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 
 import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
+import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/painters/point_glass_painter.dart';
 import 'package:point_glass/src/utils/transform_3d.dart';
 
@@ -22,6 +23,7 @@ class PointGlassViewer extends StatefulWidget {
     this.mode = PointGlassViewerMode.rotate,
     this.grid,
     this.axis,
+    this.polygons,
   });
 
   final double initialScale;
@@ -33,6 +35,7 @@ class PointGlassViewer extends StatefulWidget {
   final PointGlassViewerMode mode;
   final PointGlassGrid? grid;
   final PointGlassAxis? axis;
+  final List<PointGlassPolygon>? polygons;
 
   @override
   State<PointGlassViewer> createState() => _PointGlassViewerState();
@@ -89,6 +92,7 @@ class _PointGlassViewerState extends State<PointGlassViewer> {
               transform: _transform,
               grid: widget.grid ?? PointGlassGrid(),
               axis: widget.axis ?? PointGlassAxis(),
+                  polygons: widget.polygons ?? [],
             ),
           ),
         ),
