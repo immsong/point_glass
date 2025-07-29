@@ -36,12 +36,7 @@ class PointGlassGridPainter {
         final y = -grid.gridSize + (2 * grid.gridSize * t);
 
         final transformed = transform.transform(pos, y, 0);
-        points.add(
-          Offset(
-            transformed.$1 * transform.scale,
-            transformed.$2 * transform.scale,
-          ),
-        );
+        points.add(Offset(transformed.$1, transformed.$2));
 
         // Z 값이 perspective 보다 큰 경우 접히는 것 처럼 보여 그리지 않도록 설정 (Z Fighting 방지)
         validSegments.add(transformed.$3 < transform.perspective);
@@ -63,12 +58,7 @@ class PointGlassGridPainter {
         final x = -grid.gridSize + (2 * grid.gridSize * t);
 
         final transformed = transform.transform(x, pos, 0);
-        points.add(
-          Offset(
-            transformed.$1 * transform.scale,
-            transformed.$2 * transform.scale,
-          ),
-        );
+        points.add(Offset(transformed.$1, transformed.$2));
 
         // Z 값이 perspective 보다 큰 경우 접히는 것 처럼 보여 그리지 않도록 설정 (Z Fighting 방지)
         validSegments.add(transformed.$3 < transform.perspective);
@@ -98,12 +88,7 @@ class PointGlassGridPainter {
         final y = radius * sin(angle);
 
         final transformed = transform.transform(x, y, 0);
-        points.add(
-          Offset(
-            transformed.$1 * transform.scale,
-            transformed.$2 * transform.scale,
-          ),
-        );
+        points.add(Offset(transformed.$1, transformed.$2));
 
         // Z 값이 perspective 보다 큰 경우 접히는 것 처럼 보여 그리지 않도록 설정 (Z Fighting 방지)
         validSegments.add(transformed.$3 < transform.perspective);
@@ -134,8 +119,8 @@ class PointGlassGridPainter {
         textPainter.paint(
           canvas,
           Offset(
-            yPos.$1 * transform.scale - textPainter.width / 2,
-            yPos.$2 * transform.scale - textPainter.height / 2,
+            yPos.$1 - textPainter.width / 2,
+            yPos.$2 - textPainter.height / 2,
           ),
         );
       }

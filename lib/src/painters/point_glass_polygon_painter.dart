@@ -32,14 +32,14 @@ class PointGlassPolygonPainter {
         polygon.points.first.z,
       );
 
-      path.moveTo(first.$1 * transform.scale, first.$2 * transform.scale);
+      path.moveTo(first.$1, first.$2);
       for (var i = 1; i < polygon.points.length; i++) {
         final point = transform.transform(
           polygon.points[i].x,
           polygon.points[i].y,
           polygon.points[i].z,
         );
-        path.lineTo(point.$1 * transform.scale, point.$2 * transform.scale);
+        path.lineTo(point.$1, point.$2);
       }
 
       path.close();
@@ -58,8 +58,8 @@ class PointGlassPolygonPainter {
         );
 
         canvas.drawCircle(
-          Offset(point.$1 * transform.scale, point.$2 * transform.scale),
-          polygon.pointSize * transform.scale,
+          Offset(point.$1, point.$2),
+          polygon.pointSize,
           Paint()
             ..color = polygon.pointColor
             ..strokeWidth = polygon.pointSize

@@ -10,16 +10,19 @@ class Transform3D {
   final double positionX;
   final double positionY;
   late Matrix4 _transformMatrix;
-  double perspective;
+  double perspective = 0.0;
+  double? perspectiveMax;
+  double? perspectiveMin;
 
   Transform3D({
-    this.scale = 5.0,
+    this.scale = 100.0,
     this.rotationX = 0.0,
     this.rotationY = 0.0,
     this.rotationZ = 0.0,
     this.positionX = 0.0,
     this.positionY = 0.0,
-    this.perspective = 100.0,
+    this.perspectiveMax,
+    this.perspectiveMin,
   }) {
     _updateTransformMatrix();
   }
@@ -45,12 +48,14 @@ class Transform3D {
     final transformed = _transformMatrix.transform(vector);
 
     // 원근 투영 적용
-    final perspectiveMax = 100.0;
-    final perspectiveMin = 50.0;
+    final perspectiveMax = this.perspectiveMax ?? 1000.0;
+    final perspectiveMin = this.perspectiveMin ?? 100.0;
+
+    final logScale = log(scale / 100.0); // 100을 기준으로 로그 계산
     perspective =
-        (perspectiveMax -
-                (scale - 10) * (perspectiveMax - perspectiveMin) / 600)
+        (perspectiveMax - logScale * (perspectiveMax - perspectiveMin) / 2)
             .clamp(perspectiveMin, perspectiveMax);
+
     final minZ = 1.0;
 
     final zDistance = perspective - transformed.z;

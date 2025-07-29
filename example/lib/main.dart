@@ -47,7 +47,7 @@ class _MyHomePageState extends State<MyHomePage> {
         vm.Vector3(-19.33, -2.5, 0),
         vm.Vector3(-10.67, -2.5, 0),
       ],
-      pointSize: 0.25,
+      pointSize: 3,
       pointColor: Colors.red,
     ),
     // 사각형
@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
         vm.Vector3(20, 0, 0),
         vm.Vector3(10, 0, 0),
       ],
-      pointSize: 0.25,
+      pointSize: 3,
       pointColor: Colors.orange,
     ),
     // 육각형
@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
         vm.Vector3(19.33, 12.5, 0),
         vm.Vector3(19.33, 7.5, 0),
       ],
-      pointSize: 0.25,
+      pointSize: 3,
       pointColor: Colors.green,
     ),
   ];

@@ -14,12 +14,12 @@ enum PointGlassViewerMode { none, rotate, translate, spin }
 class PointGlassViewer extends StatefulWidget {
   const PointGlassViewer({
     super.key,
-    this.initialScale = 5.0,
+    this.initialScale = 50.0,
     this.initialRotationX = 0.0,
     this.initialRotationY = 0.0,
     this.initialRotationZ = 0.0,
-    this.minScale = 1.0,
-    this.maxScale = 1000.0,
+    this.minScale = 10.0,
+    this.maxScale = 10000.0,
     this.mode = PointGlassViewerMode.rotate,
     this.grid,
     this.axis,

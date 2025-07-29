@@ -24,8 +24,8 @@ class PointGlassAxisPainter {
     final xStart = transform.transform(0, 0, 0);
     final xEnd = transform.transform(axis.axisLength, 0, 0);
     canvas.drawLine(
-      Offset(xStart.$1 * transform.scale, xStart.$2 * transform.scale),
-      Offset(xEnd.$1 * transform.scale, xEnd.$2 * transform.scale),
+      Offset(xStart.$1, xStart.$2),
+      Offset(xEnd.$1, xEnd.$2),
       xLinePaint,
     );
 
@@ -33,8 +33,8 @@ class PointGlassAxisPainter {
     final yStart = transform.transform(0, 0, 0);
     final yEnd = transform.transform(0, axis.axisLength, 0);
     canvas.drawLine(
-      Offset(yStart.$1 * transform.scale, yStart.$2 * transform.scale),
-      Offset(yEnd.$1 * transform.scale, yEnd.$2 * transform.scale),
+      Offset(yStart.$1, yStart.$2),
+      Offset(yEnd.$1, yEnd.$2),
       yLinePaint,
     );
 
@@ -42,8 +42,8 @@ class PointGlassAxisPainter {
     final zStart = transform.transform(0, 0, 0);
     final zEnd = transform.transform(0, 0, axis.axisLength);
     canvas.drawLine(
-      Offset(zStart.$1 * transform.scale, zStart.$2 * transform.scale),
-      Offset(zEnd.$1 * transform.scale, zEnd.$2 * transform.scale),
+      Offset(zStart.$1, zStart.$2),
+      Offset(zEnd.$1, zEnd.$2),
       zLinePaint,
     );
   }
