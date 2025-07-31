@@ -19,6 +19,7 @@ class PointGlassViewerMobile extends PointGlassViewerBase {
     super.grid,
     super.axis,
     super.polygons,
+    super.annualSector,
   });
 
   @override

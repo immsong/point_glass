@@ -7,6 +7,7 @@ import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/models/point_glass_types.dart';
+import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 
 import 'point_glass_viewer_mobile.dart';
 import 'point_glass_viewer_desktop.dart';
@@ -25,6 +26,7 @@ class PointGlassViewer extends StatelessWidget {
     this.grid,
     this.axis,
     this.polygons,
+    this.annualSector,
   });
 
   final PopupMenuStyle contextStyle;
@@ -38,6 +40,7 @@ class PointGlassViewer extends StatelessWidget {
   final PointGlassGrid? grid;
   final PointGlassAxis? axis;
   final List<PointGlassPolygon>? polygons;
+  final PointGlassAnnualSector? annualSector;
 
   @override
   Widget build(BuildContext context) {
@@ -55,6 +58,7 @@ class PointGlassViewer extends StatelessWidget {
         grid: grid,
         axis: axis,
         polygons: polygons,
+        annualSector: annualSector,
       );
     } else {
       return PointGlassViewerMobile(
@@ -69,6 +73,7 @@ class PointGlassViewer extends StatelessWidget {
         grid: grid,
         axis: axis,
         polygons: polygons,
+        annualSector: annualSector,
       );
     }
   }

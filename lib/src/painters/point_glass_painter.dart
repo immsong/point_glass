@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
+import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/painters/point_glass_axis_painter.dart';
 import 'package:point_glass/src/painters/point_glass_grid_painter.dart';
 import 'package:point_glass/src/painters/point_glass_polygon_painter.dart';
+import 'package:point_glass/src/painters/point_glass_annual_sector_painter.dart';
 import 'package:point_glass/src/utils/transform_3d.dart';
 
 class PointGlassPainter extends CustomPainter {
@@ -13,22 +15,29 @@ class PointGlassPainter extends CustomPainter {
   final PointGlassGrid grid;
   final PointGlassAxis axis;
   final List<PointGlassPolygon> polygons;
+  final PointGlassAnnualSector annualSector;
 
   late PointGlassGridPainter gridPainter;
   late PointGlassAxisPainter axisPainter;
   late PointGlassPolygonPainter polygonPainter;
+  late PointGlassAnnualSectorPainter annualSectorPainter;
 
   PointGlassPainter({
     required this.transform,
     required this.grid,
     required this.axis,
     required this.polygons,
+    required this.annualSector,
   }) {
     gridPainter = PointGlassGridPainter(transform: transform, grid: grid);
     axisPainter = PointGlassAxisPainter(transform: transform, axis: axis);
     polygonPainter = PointGlassPolygonPainter(
       transform: transform,
       polygons: polygons,
+    );
+    annualSectorPainter = PointGlassAnnualSectorPainter(
+      transform: transform,
+      annualSector: annualSector,
     );
   }
 
@@ -51,6 +60,10 @@ class PointGlassPainter extends CustomPainter {
     if (polygons.isNotEmpty) {
       // 각 Polygon 안에서 enble 체크
       polygonPainter.draw(canvas, size);
+    }
+
+    if (annualSector.enable) {
+      annualSectorPainter.draw(canvas, size);
     }
 
     canvas.restore();

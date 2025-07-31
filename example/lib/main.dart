@@ -79,6 +79,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 axis: PointGlassAxis(enable: axisOnOff, axisLength: axisLength),
                 polygons: polygons,
+                annualSector: PointGlassAnnualSector(
+                  enable: true,
+                  startAngle: 45,
+                  endAngle: 135,
+                  innerRadius: 1,
+                  outerRadius: 5,
+                ),
               ),
             ),
             Expanded(child: _buildController()),

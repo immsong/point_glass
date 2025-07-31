@@ -6,6 +6,7 @@ import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/models/point_glass_types.dart';
+import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/painters/point_glass_painter.dart';
 import 'package:point_glass/src/utils/transform_3d.dart';
 
@@ -23,6 +24,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
     this.grid,
     this.axis,
     this.polygons,
+    this.annualSector,
   });
 
   final PopupMenuStyle contextStyle;
@@ -36,6 +38,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
   final PointGlassGrid? grid;
   final PointGlassAxis? axis;
   final List<PointGlassPolygon>? polygons;
+  final PointGlassAnnualSector? annualSector;
 }
 
 abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
@@ -135,6 +138,7 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
           grid: widget.grid ?? PointGlassGrid(),
           axis: widget.axis ?? PointGlassAxis(),
           polygons: widget.polygons ?? [],
+          annualSector: widget.annualSector ?? PointGlassAnnualSector(),
         ),
       ),
     );
