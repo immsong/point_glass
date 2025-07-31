@@ -37,7 +37,6 @@ class _MyHomePageState extends State<MyHomePage> {
   double axisLength = 0.5;
   bool axisOnOff = true;
 
-  bool polygonOnOff = true;
   List<PointGlassPolygon> polygons = [
     // 삼각형
     PointGlassPolygon(
@@ -49,34 +48,10 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
       pointSize: 3,
       pointColor: Colors.red,
-    ),
-    // 사각형
-    PointGlassPolygon(
-      enable: true,
-      points: [
-        vm.Vector3(10, -10, 0),
-        vm.Vector3(20, -10, 0),
-        vm.Vector3(20, 0, 0),
-        vm.Vector3(10, 0, 0),
-      ],
-      pointSize: 3,
-      pointColor: Colors.orange,
-    ),
-    // 육각형
-    PointGlassPolygon(
-      enable: true,
-      points: [
-        vm.Vector3(15, 5, 0),
-        vm.Vector3(10.67, 7.5, 0),
-        vm.Vector3(10.67, 12.5, 0),
-        vm.Vector3(15, 15, 0),
-        vm.Vector3(19.33, 12.5, 0),
-        vm.Vector3(19.33, 7.5, 0),
-      ],
-      pointSize: 3,
-      pointColor: Colors.green,
+      isEditable: true,
     ),
   ];
+  bool isEditPolygon = false;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +67,9 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               flex: 5,
               child: PointGlassViewer(
+                mode: isEditPolygon
+                    ? PointGlassViewerMode.editPolygon
+                    : PointGlassViewerMode.rotate,
                 grid: PointGlassGrid(
                   enable: true,
                   gridSize: gridSize,
@@ -124,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
           ..._buildAxisControlWidgets(),
           const Spacer(),
           ..._buildPolygonControlWidgets(),
-          const Spacer(flex: 50),
+          const Spacer(flex: 10),
         ],
       ),
     );
@@ -242,38 +220,39 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Widget> _buildPolygonControlWidgets() {
     return [
       Expanded(
-        child: Row(children: [Text('Polygon On / Off'), const Spacer()]),
+        child: Row(
+          children: [Text('Polygon Edit / View Only'), const Spacer()],
+        ),
       ),
       Expanded(
         child: Row(
           children: [
             Radio<bool>(
               value: true,
-              groupValue: polygonOnOff,
+              groupValue: isEditPolygon,
               onChanged: (value) {
                 setState(() {
-                  polygonOnOff = true;
-                  for (var polygon in polygons) {
-                    polygon.enable = true;
-                  }
+                  isEditPolygon = true;
                 });
               },
             ),
-            Text('On'),
+            Text('Edit'),
             const Spacer(),
             Radio<bool>(
               value: false,
-              groupValue: polygonOnOff,
+              groupValue: isEditPolygon,
               onChanged: (value) {
                 setState(() {
-                  polygonOnOff = false;
+                  isEditPolygon = false;
                   for (var polygon in polygons) {
-                    polygon.enable = false;
+                    polygon.selectedPolygon = false;
+                    polygon.selectedVertexIndex = -1;
+                    polygon.hoveredVertexIndex = -1;
                   }
                 });
               },
             ),
-            Text('Off'),
+            Text('View'),
             const Spacer(),
           ],
         ),
