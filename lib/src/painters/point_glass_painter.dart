@@ -15,7 +15,7 @@ class PointGlassPainter extends CustomPainter {
   final PointGlassGrid grid;
   final PointGlassAxis axis;
   final List<PointGlassPolygon> polygons;
-  final PointGlassAnnualSector annualSector;
+  final List<PointGlassAnnualSector> annualSectors;
 
   late PointGlassGridPainter gridPainter;
   late PointGlassAxisPainter axisPainter;
@@ -27,7 +27,7 @@ class PointGlassPainter extends CustomPainter {
     required this.grid,
     required this.axis,
     required this.polygons,
-    required this.annualSector,
+    required this.annualSectors,
   }) {
     gridPainter = PointGlassGridPainter(transform: transform, grid: grid);
     axisPainter = PointGlassAxisPainter(transform: transform, axis: axis);
@@ -37,7 +37,7 @@ class PointGlassPainter extends CustomPainter {
     );
     annualSectorPainter = PointGlassAnnualSectorPainter(
       transform: transform,
-      annualSector: annualSector,
+      annualSectors: annualSectors,
     );
   }
 
@@ -62,7 +62,8 @@ class PointGlassPainter extends CustomPainter {
       polygonPainter.draw(canvas, size);
     }
 
-    if (annualSector.enable) {
+    if (annualSectors.isNotEmpty) {
+      // 각 AnnualSector 안에서 enable 체크
       annualSectorPainter.draw(canvas, size);
     }
 

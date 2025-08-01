@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 import 'package:point_glass/point_glass.dart';
+import 'widgets.dart';
 
 void main() {
   runApp(const MyApp());
@@ -48,10 +49,17 @@ class _MyHomePageState extends State<MyHomePage> {
       ],
       pointSize: 3,
       pointColor: Colors.red,
-      isEditable: true,
+      isEditable: false,
     ),
   ];
+  bool polygonOnOff = true;
   bool isEditPolygon = false;
+
+  bool annualSectorOnOff = true;
+  double annualSectorStartAngle = 40;
+  double annualSectorEndAngle = 140;
+  double annualSectorInnerRadius = 2;
+  double annualSectorOuterRadius = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -79,16 +87,22 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
                 axis: PointGlassAxis(enable: axisOnOff, axisLength: axisLength),
                 polygons: polygons,
-                annualSector: PointGlassAnnualSector(
-                  enable: true,
-                  startAngle: 45,
-                  endAngle: 135,
-                  innerRadius: 1,
-                  outerRadius: 5,
+                annualSectors: [
+                  PointGlassAnnualSector(
+                    enable: annualSectorOnOff,
+                    startAngle: annualSectorStartAngle,
+                    endAngle: annualSectorEndAngle,
+                    innerRadius: annualSectorInnerRadius,
+                    outerRadius: annualSectorOuterRadius,
+                    color: Colors.green,
+                    alpha: 30,
+                    lineColor: Colors.green,
+                    lineAlpha: 255,
                 ),
+                ],
               ),
             ),
-            Expanded(child: _buildController()),
+            Expanded(flex: 3, child: _buildController()),
           ],
         ),
       ),
@@ -104,25 +118,22 @@ class _MyHomePageState extends State<MyHomePage> {
       child: Column(
         mainAxisSize: MainAxisSize.max,
         children: [
-          ..._buildGridControlWidgets(),
+          _buildGridControlWidgets(),
+          _buildAxisControlWidgets(),
+          _buildPolygonControlWidgets(),
+          _buildAnnualSectorControlWidgets(),
           const Spacer(),
-          ..._buildAxisControlWidgets(),
-          const Spacer(),
-          ..._buildPolygonControlWidgets(),
-          const Spacer(flex: 10),
         ],
       ),
     );
   }
 
-  List<Widget> _buildGridControlWidgets() {
-    return [
-      Expanded(child: Row(children: [Text('Grid Size'), const Spacer()])),
-      Expanded(
-        child: Row(
+  Widget _buildGridControlWidgets() {
+    return Column(
           children: [
-            Expanded(
-              child: Slider(
+        title('Grid'),
+        slider(
+          txt: 'Grid Size',
                 value: gridSize,
                 min: 10,
                 max: 100,
@@ -132,18 +143,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-            ),
-            Text(gridSize.toString()),
-          ],
-        ),
-      ),
-      const Spacer(),
-      Expanded(child: Row(children: [Text('Grid Step'), const Spacer()])),
-      Expanded(
-        child: Row(
-          children: [
-            Expanded(
-              child: Slider(
+        slider(
+          txt: 'Grid Step',
                 value: gridStep,
                 min: 1,
                 max: 10,
@@ -161,22 +162,33 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-            ),
-            Text(gridStep.toString()),
+        horizontalLine(),
           ],
-        ),
-      ),
-    ];
+    );
   }
 
-  List<Widget> _buildAxisControlWidgets() {
-    return [
-      Expanded(child: Row(children: [Text('Axis Length'), const Spacer()])),
-      Expanded(
-        child: Row(
+  Widget _buildAxisControlWidgets() {
+    return Column(
           children: [
-            Expanded(
-              child: Slider(
+        title('Axis'),
+        radioButton(
+          txt: 'Axis On / Off',
+          groupValue: axisOnOff,
+          trueLabel: 'On',
+          falseLabel: 'Off',
+          onTrueAction: () {
+            setState(() {
+              axisOnOff = true;
+            });
+          },
+          onFalseAction: () {
+            setState(() {
+              axisOnOff = false;
+            });
+          },
+        ),
+        slider(
+          txt: 'Axis Length',
                 value: axisLength,
                 min: 0.5,
                 max: 5,
@@ -186,84 +198,148 @@ class _MyHomePageState extends State<MyHomePage> {
                   });
                 },
               ),
-            ),
-            Text(axisLength.toString()),
-          ],
-        ),
-      ),
-      const Spacer(),
-      Expanded(child: Row(children: [Text('Axis On / Off'), const Spacer()])),
-      Expanded(
-        child: Row(
-          children: [
-            Radio<bool>(
-              value: true,
-              groupValue: axisOnOff,
-              onChanged: (value) {
-                setState(() {
-                  axisOnOff = true;
-                });
-              },
-            ),
-            Text('On'),
-            const Spacer(),
-            Radio<bool>(
-              value: false,
-              groupValue: axisOnOff,
-              onChanged: (value) {
-                setState(() {
-                  axisOnOff = false;
-                });
-              },
-            ),
-            Text('Off'),
-            const Spacer(),
-          ],
-        ),
-      ),
-    ];
+        horizontalLine(),
+      ],
+    );
   }
 
-  List<Widget> _buildPolygonControlWidgets() {
-    return [
-      Expanded(
-        child: Row(
-          children: [Text('Polygon Edit / View Only'), const Spacer()],
+  Widget _buildPolygonControlWidgets() {
+    return Column(
+      children: [
+        title('Polygon'),
+        radioButton(
+          txt: 'Polygon On / Off',
+          groupValue: polygonOnOff,
+          trueLabel: 'On',
+          falseLabel: 'Off',
+          onTrueAction: () {
+            setState(() {
+              polygonOnOff = true;
+              for (var polygon in polygons) {
+                polygon.enable = polygonOnOff;
+              }
+            });
+          },
+          onFalseAction: () {
+            setState(() {
+              polygonOnOff = false;
+              for (var polygon in polygons) {
+                polygon.enable = polygonOnOff;
+              }
+            });
+          },
         ),
-      ),
-      Expanded(
-        child: Row(
+        radioButton(
+          txt: 'Polygon Edit / View Only',
+          groupValue: isEditPolygon,
+          trueLabel: 'Edit',
+          falseLabel: 'View',
+          onTrueAction: () {
+            setState(() {
+              isEditPolygon = true;
+              viewMode = PointGlassViewerMode.editPolygon;
+              for (var polygon in polygons) {
+                polygon.isEditable = isEditPolygon;
+              }
+            });
+          },
+          onFalseAction: () {
+            setState(() {
+              isEditPolygon = false;
+              viewMode = PointGlassViewerMode.rotate;
+              for (var polygon in polygons) {
+                polygon.isEditable = isEditPolygon;
+              }
+            });
+          },
+        ),
+        horizontalLine(),
+      ],
+    );
+  }
+
+  Widget _buildAnnualSectorControlWidgets() {
+    return Column(
           children: [
-            Radio<bool>(
-              value: true,
-              groupValue: isEditPolygon,
-              onChanged: (value) {
+        title('Annual Sector'),
+        radioButton(
+          txt: 'Annual Sector On / Off',
+          groupValue: annualSectorOnOff,
+          trueLabel: 'On',
+          falseLabel: 'Off',
+          onTrueAction: () {
+            setState(() {
+              annualSectorOnOff = true;
+            });
+          },
+          onFalseAction: () {
                 setState(() {
-                  isEditPolygon = true;
+              annualSectorOnOff = false;
                 });
               },
             ),
-            Text('Edit'),
-            const Spacer(),
-            Radio<bool>(
-              value: false,
-              groupValue: isEditPolygon,
+        slider(
+          txt: 'Start Angle',
+          value: annualSectorStartAngle,
+          min: 0,
+          max: 360,
               onChanged: (value) {
                 setState(() {
-                  isEditPolygon = false;
-                  for (var polygon in polygons) {
-                    polygon.selectedPolygon = false;
-                    polygon.selectedVertexIndex = -1;
-                    polygon.hoveredVertexIndex = -1;
+              if (value >= annualSectorEndAngle) {
+                annualSectorStartAngle = annualSectorEndAngle - 1;
+              } else {
+                annualSectorStartAngle = value.round().toDouble();
+              }
+                });
+              },
+            ),
+        slider(
+          txt: 'End Angle',
+          value: annualSectorEndAngle,
+          min: 0,
+          max: 360,
+          onChanged: (value) {
+            setState(() {
+              if (value <= annualSectorStartAngle) {
+                annualSectorEndAngle = annualSectorStartAngle + 1;
+              } else {
+                annualSectorEndAngle = value.round().toDouble();
+              }
+            });
+          },
+      ),
+        slider(
+          txt: 'Inner Radius',
+          value: annualSectorInnerRadius,
+          min: 0,
+          max: 100,
+              onChanged: (value) {
+                setState(() {
+              if (value > annualSectorOuterRadius) {
+                annualSectorInnerRadius = annualSectorOuterRadius;
+              } else {
+                annualSectorInnerRadius = value.round().toDouble();
+              }
+                });
+              },
+            ),
+        slider(
+          txt: 'Outer Radius',
+          value: annualSectorOuterRadius,
+          min: 0,
+          max: 100,
+              onChanged: (value) {
+                setState(() {
+              if (value < annualSectorInnerRadius) {
+                annualSectorOuterRadius = annualSectorInnerRadius;
+              } else {
+                annualSectorOuterRadius = value.round().toDouble();
                   }
                 });
               },
             ),
-            Text('View'),
-            const Spacer(),
+        horizontalLine(),
           ],
-        ),
-      ),
-    ];
+    );
   }
-}
+  }

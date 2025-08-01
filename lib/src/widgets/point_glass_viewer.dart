@@ -26,7 +26,7 @@ class PointGlassViewer extends StatelessWidget {
     this.grid,
     this.axis,
     this.polygons,
-    this.annualSector,
+    this.annualSectors,
   });
 
   final PopupMenuStyle contextStyle;
@@ -40,7 +40,7 @@ class PointGlassViewer extends StatelessWidget {
   final PointGlassGrid? grid;
   final PointGlassAxis? axis;
   final List<PointGlassPolygon>? polygons;
-  final PointGlassAnnualSector? annualSector;
+  final List<PointGlassAnnualSector>? annualSectors;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class PointGlassViewer extends StatelessWidget {
         grid: grid,
         axis: axis,
         polygons: polygons,
-        annualSector: annualSector,
+        annualSectors: annualSectors,
       );
     } else {
       return PointGlassViewerMobile(
@@ -73,7 +73,7 @@ class PointGlassViewer extends StatelessWidget {
         grid: grid,
         axis: axis,
         polygons: polygons,
-        annualSector: annualSector,
+        annualSectors: annualSectors,
       );
     }
   }

@@ -24,7 +24,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
     this.grid,
     this.axis,
     this.polygons,
-    this.annualSector,
+    this.annualSectors,
   });
 
   final PopupMenuStyle contextStyle;
@@ -38,7 +38,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
   final PointGlassGrid? grid;
   final PointGlassAxis? axis;
   final List<PointGlassPolygon>? polygons;
-  final PointGlassAnnualSector? annualSector;
+  final List<PointGlassAnnualSector>? annualSectors;
 }
 
 abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
@@ -138,7 +138,7 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
           grid: widget.grid ?? PointGlassGrid(),
           axis: widget.axis ?? PointGlassAxis(),
           polygons: widget.polygons ?? [],
-          annualSector: widget.annualSector ?? PointGlassAnnualSector(),
+          annualSectors: widget.annualSectors ?? [],
         ),
       ),
     );
