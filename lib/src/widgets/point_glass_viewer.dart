@@ -8,6 +8,7 @@ import 'package:point_glass/src/models/point_glass_grid.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/models/point_glass_types.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
+import 'package:point_glass/src/utils/transform_3d.dart';
 
 import 'point_glass_viewer_mobile.dart';
 import 'point_glass_viewer_desktop.dart';
@@ -15,11 +16,8 @@ import 'point_glass_viewer_desktop.dart';
 class PointGlassViewer extends StatelessWidget {
   const PointGlassViewer({
     super.key,
+    required this.transform,
     this.contextStyle = const PopupMenuStyle(),
-    this.initialScale = 50.0,
-    this.initialRotationX = 45.0,
-    this.initialRotationY = 30.0,
-    this.initialRotationZ = 0.0,
     this.minScale = 10.0,
     this.maxScale = 10000.0,
     this.mode = PointGlassViewerMode.rotate,
@@ -29,11 +27,8 @@ class PointGlassViewer extends StatelessWidget {
     this.annualSectors,
   });
 
+  final ValueNotifier<Transform3D> transform;
   final PopupMenuStyle contextStyle;
-  final double initialScale;
-  final double initialRotationX;
-  final double initialRotationY;
-  final double initialRotationZ;
   final double minScale;
   final double maxScale;
   final PointGlassViewerMode mode;
@@ -47,11 +42,8 @@ class PointGlassViewer extends StatelessWidget {
     // 웹은 데스크톱 방식 사용
     if (kIsWeb || Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
       return PointGlassViewerDesktop(
+        transform: transform,
         contextStyle: contextStyle,
-        initialScale: initialScale,
-        initialRotationX: initialRotationX,
-        initialRotationY: initialRotationY,
-        initialRotationZ: initialRotationZ,
         minScale: minScale,
         maxScale: maxScale,
         mode: mode,
@@ -62,11 +54,8 @@ class PointGlassViewer extends StatelessWidget {
       );
     } else {
       return PointGlassViewerMobile(
+        transform: transform,
         contextStyle: contextStyle,
-        initialScale: initialScale,
-        initialRotationX: initialRotationX,
-        initialRotationY: initialRotationY,
-        initialRotationZ: initialRotationZ,
         minScale: minScale,
         maxScale: maxScale,
         mode: mode,

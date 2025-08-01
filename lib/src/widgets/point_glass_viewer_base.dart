@@ -13,11 +13,8 @@ import 'package:point_glass/src/utils/transform_3d.dart';
 abstract class PointGlassViewerBase extends StatefulWidget {
   const PointGlassViewerBase({
     super.key,
+    required this.transform,
     required this.contextStyle,
-    required this.initialScale,
-    required this.initialRotationX,
-    required this.initialRotationY,
-    required this.initialRotationZ,
     required this.minScale,
     required this.maxScale,
     required this.mode,
@@ -27,11 +24,8 @@ abstract class PointGlassViewerBase extends StatefulWidget {
     this.annualSectors,
   });
 
+  final ValueNotifier<Transform3D> transform;
   final PopupMenuStyle contextStyle;
-  final double initialScale;
-  final double initialRotationX;
-  final double initialRotationY;
-  final double initialRotationZ;
   final double minScale;
   final double maxScale;
   final PointGlassViewerMode mode;
@@ -43,53 +37,48 @@ abstract class PointGlassViewerBase extends StatefulWidget {
 
 abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
     extends State<T> {
-  late Transform3D transform;
   bool isDraggingPolygon = false;
 
   @override
   void initState() {
     super.initState();
-    transform = Transform3D(
-      scale: widget.initialScale,
-      rotationX: widget.initialRotationX,
-      rotationY: widget.initialRotationY,
-      rotationZ: widget.initialRotationZ,
-    );
   }
 
   // 공통 메서드들
   void rotateZ(double rotation) {
     setState(() {
-      transform = transform.copyWith(
-        rotationZ: transform.rotationZ + transform.degrees(rotation),
+      widget.transform.value = widget.transform.value.copyWith(
+        rotationZ:
+            widget.transform.value.rotationZ +
+            widget.transform.value.degrees(rotation),
       );
     });
   }
 
   void rotateXY(Offset delta) {
     setState(() {
-      transform = transform.copyWith(
-        rotationY: transform.rotationY + delta.dx * 0.5,
-        rotationX: transform.rotationX + delta.dy * -0.5,
+      widget.transform.value = widget.transform.value.copyWith(
+        rotationY: widget.transform.value.rotationY + delta.dx * 0.5,
+        rotationX: widget.transform.value.rotationX + delta.dy * -0.5,
       );
     });
   }
 
   void scaleUpdate(double scale) {
-    final newScale = (transform.scale * scale).clamp(
+    final newScale = (widget.transform.value.scale * scale).clamp(
       widget.minScale,
       widget.maxScale,
     );
     setState(() {
-      transform = transform.copyWith(scale: newScale);
+      widget.transform.value = widget.transform.value.copyWith(scale: newScale);
     });
   }
 
   void translate(Offset delta) {
     setState(() {
-      transform = transform.copyWith(
-        positionX: transform.positionX + delta.dx,
-        positionY: transform.positionY + delta.dy,
+      widget.transform.value = widget.transform.value.copyWith(
+        positionX: widget.transform.value.positionX + delta.dx,
+        positionY: widget.transform.value.positionY + delta.dy,
       );
     });
   }
@@ -102,11 +91,12 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
         continue;
       }
 
-      final (worldDeltaX, worldDeltaY) = transform.inverseTransformToPlane(
-        delta.dx,
-        delta.dy,
+      final (worldDeltaX, worldDeltaY) = widget.transform.value
+          .inverseTransformToPlane(delta.dx, delta.dy);
+      final (originX, originY) = widget.transform.value.inverseTransformToPlane(
+        0.0,
+        0.0,
       );
-      final (originX, originY) = transform.inverseTransformToPlane(0.0, 0.0);
 
       // 실제 이동량 계산
       final realDeltaX = worldDeltaX - originX;
@@ -134,7 +124,7 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
     return SizedBox.expand(
       child: CustomPaint(
         painter: PointGlassPainter(
-          transform: transform,
+          transform: widget.transform.value,
           grid: widget.grid ?? PointGlassGrid(),
           axis: widget.axis ?? PointGlassAxis(),
           polygons: widget.polygons ?? [],

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -12,11 +13,8 @@ import 'point_glass_viewer_base.dart';
 class PointGlassViewerDesktop extends PointGlassViewerBase {
   const PointGlassViewerDesktop({
     super.key,
+    required super.transform,
     required super.contextStyle,
-    required super.initialScale,
-    required super.initialRotationX,
-    required super.initialRotationY,
-    required super.initialRotationZ,
     required super.minScale,
     required super.maxScale,
     required super.mode,
@@ -38,6 +36,8 @@ class _PointGlassViewerDesktopState
   Offset _lastPointerDownPosition = Offset.zero;
 
   Timer? _hoverTimer;
+
+  Timer? _longPressTimer;
 
   bool _isShiftPressed = false;
   bool _isCtrlPressed = false;
@@ -72,8 +72,8 @@ class _PointGlassViewerDesktopState
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         final center = Offset(
-          size.width / 2 + transform.positionX,
-          size.height / 2 + transform.positionY,
+          size.width / 2 + widget.transform.value.positionX,
+          size.height / 2 + widget.transform.value.positionY,
         );
 
         return Listener(
@@ -81,6 +81,7 @@ class _PointGlassViewerDesktopState
           onPointerDown: (details) => _handlePointerDown(details, center),
           onPointerMove: (details) => _handlePointerMove(details, center),
           onPointerHover: (details) => _handlePointerHover(details, center),
+          onPointerUp: (details) => _handlePointerUp(details, center),
           child: buildCanvas(),
         );
       },
@@ -95,15 +96,23 @@ class _PointGlassViewerDesktopState
     }
   }
 
-  // 마우스 오른쪽, 왼쪽 클릭, 더블 클릭
+  // 마우스 오른쪽, 왼쪽 클릭, 더블 클릭, 길게 누르기
   void _handlePointerDown(PointerDownEvent details, Offset center) {
     if (details.buttons != kPrimaryMouseButton) {
       if (details.buttons == kSecondaryMouseButton) {
-        _handleMouseSecondaryClick(details.localPosition, center);
+        // web의 경우 오른쪽 클릭 시 웹의 기본 메뉴가 표시되므로 Long Press 로 처리
+        if (!kIsWeb) {
+          _handleMouseSecondaryClick(details.localPosition, center);
+        }
       }
 
       return;
     }
+
+    _longPressTimer?.cancel();
+    _longPressTimer = Timer(Duration(milliseconds: 500), () {
+      _handleMouseSecondaryClick(details.localPosition, center);
+    });
 
     Offset localPosition = details.localPosition;
     DateTime now = DateTime.now();
@@ -127,8 +136,14 @@ class _PointGlassViewerDesktopState
     _handleMouseDragStart(localPosition, center);
   }
 
+  void _handlePointerUp(PointerUpEvent _, Offset _) {
+    _longPressTimer?.cancel();
+  }
+
   // 마우스 드래그 처리
   void _handlePointerMove(PointerMoveEvent details, Offset center) {
+    _longPressTimer?.cancel();
+
     if (_isShiftPressed || widget.mode == PointGlassViewerMode.translate) {
       // 화면 이동
       if (details.delta != Offset.zero) {
@@ -137,7 +152,7 @@ class _PointGlassViewerDesktopState
     } else if (_isCtrlPressed || widget.mode == PointGlassViewerMode.spin) {
       // Z축 기준 회전 (X축 방향으로 이동 시 동작)
       if (details.delta != Offset.zero) {
-        rotateZ(transform.radians(details.delta.dx * 0.1));
+        rotateZ(widget.transform.value.radians(details.delta.dx * 0.1));
       }
     } else if (widget.mode == PointGlassViewerMode.editPolygon) {
       // 폴리곤 편집
@@ -150,7 +165,7 @@ class _PointGlassViewerDesktopState
       // 화면 회전
       if (details.delta != Offset.zero) {
         rotateXY(details.delta);
-        rotateZ(transform.radians(details.delta.dx * 0.1));
+        rotateZ(widget.transform.value.radians(details.delta.dx * 0.1));
       }
     }
   }
@@ -168,16 +183,15 @@ class _PointGlassViewerDesktopState
 
   // Polygon 선택을 위한 더블 클릭
   void _handleMouseDoubleClick(Offset localPosition, Offset center) {
-    final x = localPosition.dx - center.dx;
-    final y = localPosition.dy - center.dy;
-    final point = transform.inverseTransformToPlane(x, y);
-
     for (var i = 0; i < widget.polygons!.length; i++) {
       var polygon = widget.polygons![i];
       if (!polygon.isEditable) {
         continue;
       }
 
+      final x = localPosition.dx - center.dx;
+      final y = localPosition.dy - center.dy;
+      final point = widget.transform.value.inverseTransformToPlane(x, y);
       if (polygon.isPointInPolygon(point.$1, point.$2)) {
         setState(() {
           if (polygon.selectedPolygon) {
@@ -198,6 +212,7 @@ class _PointGlassViewerDesktopState
   }
 
   // Polygon 편집 메뉴 표시를 위한 오른쪽 클릭
+  // Web 에서는 오른쪽 클릭 시 웹의 기본 메뉴가 표시되므로 Long Press 로 처리
   void _handleMouseSecondaryClick(Offset localPosition, Offset center) {
     if (widget.mode != PointGlassViewerMode.editPolygon) {
       return;
@@ -209,7 +224,7 @@ class _PointGlassViewerDesktopState
 
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = transform.inverseTransformToPlane(x, y);
+    final point = widget.transform.value.inverseTransformToPlane(x, y);
 
     int targetPolygonIndex = -1;
     int targetVertexIndex = -1;
@@ -222,7 +237,7 @@ class _PointGlassViewerDesktopState
       int? vertexIdx = polygon.getClickedVertexIndex(
         point.$1,
         point.$2,
-        transform.scale,
+        widget.transform.value.scale,
       );
 
       if (vertexIdx != null && polygon.points.length <= 3) {
@@ -289,7 +304,7 @@ class _PointGlassViewerDesktopState
   void _handleMouseDragStart(Offset localPosition, Offset center) {
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = transform.inverseTransformToPlane(x, y);
+    final point = widget.transform.value.inverseTransformToPlane(x, y);
 
     isDraggingPolygon = false;
     for (var i = 0; i < widget.polygons!.length; i++) {
@@ -305,7 +320,7 @@ class _PointGlassViewerDesktopState
       int? vertexIdx = polygon.getClickedVertexIndex(
         point.$1,
         point.$2,
-        transform.scale,
+        widget.transform.value.scale,
       );
       if (vertexIdx != null) {
         isDraggingPolygon = true;
@@ -343,12 +358,12 @@ class _PointGlassViewerDesktopState
 
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = transform.inverseTransformToPlane(x, y);
+    final point = widget.transform.value.inverseTransformToPlane(x, y);
 
     int? vertexIdx = widget.polygons![targetPolygonIndex].getClickedVertexIndex(
       point.$1,
       point.$2,
-      transform.scale,
+      widget.transform.value.scale,
     );
 
     setState(() {

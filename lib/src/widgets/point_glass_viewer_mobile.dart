@@ -8,11 +8,8 @@ import 'point_glass_viewer_base.dart';
 class PointGlassViewerMobile extends PointGlassViewerBase {
   const PointGlassViewerMobile({
     super.key,
+    required super.transform,
     required super.contextStyle,
-    required super.initialScale,
-    required super.initialRotationX,
-    required super.initialRotationY,
-    required super.initialRotationZ,
     required super.minScale,
     required super.maxScale,
     required super.mode,
@@ -34,8 +31,8 @@ class _PointGlassViewerMobileState
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         final center = Offset(
-          size.width / 2 + transform.positionX,
-          size.height / 2 + transform.positionY,
+          size.width / 2 + widget.transform.value.positionX,
+          size.height / 2 + widget.transform.value.positionY,
         );
 
         return GestureDetector(
@@ -64,7 +61,7 @@ class _PointGlassViewerMobileState
   void _handleMobileDoubleTap(Offset localPosition, Offset center) {
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = transform.inverseTransformToPlane(x, y);
+    final point = widget.transform.value.inverseTransformToPlane(x, y);
 
     for (var i = 0; i < widget.polygons!.length; i++) {
       var polygon = widget.polygons![i];
@@ -103,7 +100,7 @@ class _PointGlassViewerMobileState
 
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = transform.inverseTransformToPlane(x, y);
+    final point = widget.transform.value.inverseTransformToPlane(x, y);
 
     int targetPolygonIndex = -1;
     int targetVertexIndex = -1;
@@ -116,7 +113,7 @@ class _PointGlassViewerMobileState
       int? vertexIdx = polygon.getClickedVertexIndex(
         point.$1,
         point.$2,
-        transform.scale,
+        widget.transform.value.scale,
       );
 
       if (vertexIdx != null && polygon.points.length <= 3) {
@@ -188,7 +185,7 @@ class _PointGlassViewerMobileState
   void _handleMobileScaleStart(Offset localPosition, Offset center) {
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = transform.inverseTransformToPlane(x, y);
+    final point = widget.transform.value.inverseTransformToPlane(x, y);
 
     isDraggingPolygon = false;
     for (var i = 0; i < widget.polygons!.length; i++) {
@@ -204,7 +201,7 @@ class _PointGlassViewerMobileState
       int? vertexIdx = polygon.getClickedVertexIndex(
         point.$1,
         point.$2,
-        transform.scale,
+        widget.transform.value.scale,
       );
       if (vertexIdx != null) {
         isDraggingPolygon = true;
@@ -237,7 +234,9 @@ class _PointGlassViewerMobileState
     } else if (widget.mode == PointGlassViewerMode.spin) {
       // Z축 기준 회전 (X축 방향으로 이동 시 동작)
       if (details.focalPointDelta != Offset.zero) {
-        rotateZ(transform.radians(details.focalPointDelta.dx * 0.1));
+        rotateZ(
+          widget.transform.value.radians(details.focalPointDelta.dx * 0.1),
+        );
       }
     } else if (widget.mode == PointGlassViewerMode.editPolygon) {
       // 폴리곤 편집

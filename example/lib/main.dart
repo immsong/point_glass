@@ -61,6 +61,13 @@ class _MyHomePageState extends State<MyHomePage> {
   double annualSectorInnerRadius = 2;
   double annualSectorOuterRadius = 4;
 
+  // 필요 시 여기서 Transform3D 초기값 설정
+  ValueNotifier<Transform3D> transform = ValueNotifier(
+    Transform3D(scale: 50, rotationX: 0, rotationY: 0, rotationZ: 0),
+  );
+
+  PointGlassViewerMode viewMode = PointGlassViewerMode.rotate;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,9 +82,8 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               flex: 5,
               child: PointGlassViewer(
-                mode: isEditPolygon
-                    ? PointGlassViewerMode.editPolygon
-                    : PointGlassViewerMode.rotate,
+                transform: transform,
+                mode: viewMode,
                 grid: PointGlassGrid(
                   enable: true,
                   gridSize: gridSize,
@@ -98,7 +104,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     alpha: 30,
                     lineColor: Colors.green,
                     lineAlpha: 255,
-                ),
+                  ),
                 ],
               ),
             ),
@@ -115,61 +121,63 @@ class _MyHomePageState extends State<MyHomePage> {
       color: Colors.white,
       width: double.infinity,
       height: double.infinity,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          _buildGridControlWidgets(),
-          _buildAxisControlWidgets(),
-          _buildPolygonControlWidgets(),
-          _buildAnnualSectorControlWidgets(),
-          const Spacer(),
-        ],
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildGridControlWidgets(),
+            _buildAxisControlWidgets(),
+            _buildPolygonControlWidgets(),
+            _buildAnnualSectorControlWidgets(),
+            _buildViewerControlWidgets(),
+            // Spacer 제거 (스크롤이 있으므로 불필요)
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildGridControlWidgets() {
     return Column(
-          children: [
+      children: [
         title('Grid'),
         slider(
           txt: 'Grid Size',
-                value: gridSize,
-                min: 10,
-                max: 100,
-                onChanged: (value) {
-                  setState(() {
-                    gridSize = (((value / 10).round()) * 10).toDouble();
-                  });
-                },
-              ),
+          value: gridSize,
+          min: 10,
+          max: 100,
+          onChanged: (value) {
+            setState(() {
+              gridSize = (((value / 10).round()) * 10).toDouble();
+            });
+          },
+        ),
         slider(
           txt: 'Grid Step',
-                value: gridStep,
-                min: 1,
-                max: 10,
-                onChanged: (value) {
-                  setState(() {
-                    if (value > 5) {
-                      gridStep = 10;
-                    } else if (value > 2) {
-                      gridStep = 5;
-                    } else if (value > 1) {
-                      gridStep = 2;
-                    } else {
-                      gridStep = 1;
-                    }
-                  });
-                },
-              ),
+          value: gridStep,
+          min: 1,
+          max: 10,
+          onChanged: (value) {
+            setState(() {
+              if (value > 5) {
+                gridStep = 10;
+              } else if (value > 2) {
+                gridStep = 5;
+              } else if (value > 1) {
+                gridStep = 2;
+              } else {
+                gridStep = 1;
+              }
+            });
+          },
+        ),
         horizontalLine(),
-          ],
+      ],
     );
   }
 
   Widget _buildAxisControlWidgets() {
     return Column(
-          children: [
+      children: [
         title('Axis'),
         radioButton(
           txt: 'Axis On / Off',
@@ -189,15 +197,15 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         slider(
           txt: 'Axis Length',
-                value: axisLength,
-                min: 0.5,
-                max: 5,
-                onChanged: (value) {
-                  setState(() {
-                    axisLength = (value * 2).round() / 2;
-                  });
-                },
-              ),
+          value: axisLength,
+          min: 0.5,
+          max: 5,
+          onChanged: (value) {
+            setState(() {
+              axisLength = (value * 2).round() / 2;
+            });
+          },
+        ),
         horizontalLine(),
       ],
     );
@@ -260,7 +268,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   Widget _buildAnnualSectorControlWidgets() {
     return Column(
-          children: [
+      children: [
         title('Annual Sector'),
         radioButton(
           txt: 'Annual Sector On / Off',
@@ -273,26 +281,26 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           },
           onFalseAction: () {
-                setState(() {
+            setState(() {
               annualSectorOnOff = false;
-                });
-              },
-            ),
+            });
+          },
+        ),
         slider(
           txt: 'Start Angle',
           value: annualSectorStartAngle,
           min: 0,
           max: 360,
-              onChanged: (value) {
-                setState(() {
+          onChanged: (value) {
+            setState(() {
               if (value >= annualSectorEndAngle) {
                 annualSectorStartAngle = annualSectorEndAngle - 1;
               } else {
                 annualSectorStartAngle = value.round().toDouble();
               }
-                });
-              },
-            ),
+            });
+          },
+        ),
         slider(
           txt: 'End Angle',
           value: annualSectorEndAngle,
@@ -307,39 +315,187 @@ class _MyHomePageState extends State<MyHomePage> {
               }
             });
           },
-      ),
+        ),
         slider(
           txt: 'Inner Radius',
           value: annualSectorInnerRadius,
           min: 0,
           max: 100,
-              onChanged: (value) {
-                setState(() {
+          onChanged: (value) {
+            setState(() {
               if (value > annualSectorOuterRadius) {
                 annualSectorInnerRadius = annualSectorOuterRadius;
               } else {
                 annualSectorInnerRadius = value.round().toDouble();
               }
-                });
-              },
-            ),
+            });
+          },
+        ),
         slider(
           txt: 'Outer Radius',
           value: annualSectorOuterRadius,
           min: 0,
           max: 100,
-              onChanged: (value) {
-                setState(() {
+          onChanged: (value) {
+            setState(() {
               if (value < annualSectorInnerRadius) {
                 annualSectorOuterRadius = annualSectorInnerRadius;
               } else {
                 annualSectorOuterRadius = value.round().toDouble();
-                  }
+              }
+            });
+          },
+        ),
+        horizontalLine(),
+      ],
+    );
+  }
+
+  Widget _buildViewerControlWidgets() {
+    return Column(
+      children: [
+        title('View'),
+        Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  Expanded(flex: 2, child: label('View Mode')),
+                  Radio<PointGlassViewerMode>(
+                    value: PointGlassViewerMode.rotate,
+                    groupValue: viewMode,
+                    onChanged: (value) {
+                      setState(() {
+                        viewMode = value!;
+                        isEditPolygon = false;
+                      });
+                    },
+                  ),
+                  Expanded(child: label('Rotate')),
+                  Radio<PointGlassViewerMode>(
+                    value: PointGlassViewerMode.translate,
+                    groupValue: viewMode,
+                    onChanged: (value) {
+                      setState(() {
+                        viewMode = value!;
+                        isEditPolygon = false;
+                      });
+                    },
+                  ),
+                  Expanded(child: label('Translate')),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Expanded(
+              child: Row(
+                children: [
+                  const Spacer(flex: 2),
+                  Radio<PointGlassViewerMode>(
+                    value: PointGlassViewerMode.spin,
+                    groupValue: viewMode,
+                    onChanged: (value) {
+                      setState(() {
+                        viewMode = value!;
+                        isEditPolygon = false;
+                      });
+                    },
+                  ),
+                  Expanded(child: label('Spin')),
+                  Radio<PointGlassViewerMode>(
+                    value: PointGlassViewerMode.editPolygon,
+                    groupValue: viewMode,
+                    onChanged: (value) {
+                      setState(() {
+                        viewMode = value!;
+                        isEditPolygon = true;
+                      });
+                    },
+                  ),
+                  Expanded(child: label('Edit Polygon')),
+                ],
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 10),
+        _transformListener(),
+        Row(
+          children: [
+            const Spacer(),
+            ElevatedButton(
+              child: Text('Reset'),
+              onPressed: () {
+                setState(() {
+                  transform.value = Transform3D(
+                    scale: 50,
+                    rotationX: 0,
+                    rotationY: 0,
+                    rotationZ: 0,
+                  );
                 });
               },
             ),
-        horizontalLine(),
           ],
+        ),
+        horizontalLine(),
+      ],
     );
   }
+
+  Widget _transformListener() {
+    return ValueListenableBuilder<Transform3D>(
+      valueListenable: transform,
+      builder: (context, value, child) {
+        return Column(
+          children: [
+            Row(
+              children: [
+                Expanded(child: label('Transform Info')),
+                const Spacer(),
+                Expanded(
+                  child: label(
+                    'Scale: ${transform.value.scale.toStringAsFixed(1)}',
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Spacer(flex: 2),
+                Expanded(
+                  child: label(
+                    'Rotation X: ${transform.value.rotationX.toStringAsFixed(1)}',
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Spacer(flex: 2),
+                Expanded(
+                  child: label(
+                    'Rotation Y: ${transform.value.rotationY.toStringAsFixed(1)}',
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                const Spacer(flex: 2),
+                Expanded(
+                  child: label(
+                    'Rotation Z: ${transform.value.rotationZ.toStringAsFixed(1)}',
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
+}
