@@ -82,56 +82,101 @@ class Transform3D {
         (perspectiveMax - logScale * (perspectiveMax - perspectiveMin) / 2)
             .clamp(perspectiveMin, perspectiveMax);
 
-    // 초기 추정값 (변환 행렬 역변환으로 시작)
-    final inverseTransform = Matrix4.inverted(_transformMatrix);
-    final zeroVector = Vector4(0.0, 0.0, 0.0, 1.0);
-    final transformedZero = _transformMatrix.transform(zeroVector);
-    final zDistance = perspective - transformedZero.z;
-    final minZ = 1.0;
-    final projectionFactor = perspective / (perspective + max(zDistance, minZ));
+    try {
+      // 1단계: 간단한 역변환으로 초기 추정
+      final inverseTransform = Matrix4.inverted(_transformMatrix);
+      final zeroVector = Vector4(0.0, 0.0, 0.0, 1.0);
+      final transformedZero = _transformMatrix.transform(zeroVector);
+      final zDistance = perspective - transformedZero.z;
+      final minZ = 1.0;
+      final projectionFactor =
+          perspective / (perspective + max(zDistance, minZ));
 
-    final unprojectedX = screenX / projectionFactor;
-    final unprojectedY = screenY / projectionFactor;
-    final vector = Vector4(unprojectedX, unprojectedY, 0.0, 1.0);
-    final result = inverseTransform.transform(vector);
+      // 스크린 좌표를 3D 공간으로 역투영
+      final unprojectedX = screenX / projectionFactor;
+      final unprojectedY = screenY / projectionFactor;
+      final vector = Vector4(unprojectedX, unprojectedY, 0.0, 1.0);
+      final result = inverseTransform.transform(vector);
 
-    // Newton-Raphson 반복으로 정밀도 향상
-    bestX = result.x;
-    bestY = result.y;
+      bestX = result.x;
+      bestY = result.y;
 
-    for (int i = 0; i < 5; i++) {
-      // 현재 추정값으로 정변환 수행
-      final (forwardX, forwardY, _) = transform(bestX, bestY, 0.0);
+      // 2단계: Newton-Raphson 반복
+      const double epsilon = 1e-8;
+      const int maxIterations = 8;
 
-      // 오차 계산
-      final errorX = forwardX - screenX;
-      final errorY = forwardY - screenY;
-      final totalError = errorX * errorX + errorY * errorY;
+      for (int i = 0; i < maxIterations; i++) {
+        // 현재 추정값으로 정변환
+        final (forwardX, forwardY, _) = transform(bestX, bestY, 0.0);
 
-      if (totalError < 1e-10) break; // 충분히 정확함
+        // 오차 계산
+        final errorX = forwardX - screenX;
+        final errorY = forwardY - screenY;
+        final totalError = errorX * errorX + errorY * errorY;
 
-      // 기울기 계산 (수치 미분)
-      const delta = 1e-6;
-      final (fx1, fy1, _) = transform(bestX + delta, bestY, 0.0);
-      final (fx2, fy2, _) = transform(bestX, bestY + delta, 0.0);
+        if (totalError < epsilon) {
+          break; // 충분히 정확함
+        }
 
-      final dxdx = (fx1 - forwardX) / delta;
-      final dydx = (fy1 - forwardY) / delta;
-      final dxdy = (fx2 - forwardX) / delta;
-      final dydy = (fy2 - forwardY) / delta;
+        // 수치 미분으로 기울기 계산
+        const double delta = 1e-4;
+        final (fx1, fy1, _) = transform(bestX + delta, bestY, 0.0);
+        final (fx2, fy2, _) = transform(bestX, bestY + delta, 0.0);
 
-      // 자코비안 행렬의 역행렬로 보정
-      final det = dxdx * dydy - dydx * dxdy;
-      if (det.abs() < 1e-10) break; // 특이점
+        final dxdx = (fx1 - forwardX) / delta;
+        final dydx = (fy1 - forwardY) / delta;
+        final dxdy = (fx2 - forwardX) / delta;
+        final dydy = (fy2 - forwardY) / delta;
 
-      final correctionX = (dydy * errorX - dxdy * errorY) / det;
-      final correctionY = (-dydx * errorX + dxdx * errorY) / det;
+        // 자코비안 행렬식 계산
+        final det = dxdx * dydy - dydx * dxdy;
 
-      bestX -= correctionX;
-      bestY -= correctionY;
+        // 특이점 체크
+        if (det.abs() < 1e-6) {
+          // 특이점인 경우 이전 결과 사용하거나 안전한 기본값 반환
+          if (i == 0) {
+            return (0.0, 0.0); // 초기 반복에서 특이점이면 안전한 기본값
+          }
+          break; // 중간에 특이점이면 현재 결과 사용
+        }
+
+        // 보정값 계산
+        final correctionX = (dydy * errorX - dxdy * errorY) / det;
+        final correctionY = (-dydx * errorX + dxdx * errorY) / det;
+
+        // 보정값이 너무 크면 스케일링
+        final maxCorrection = 10.0;
+        final scaleFactor = min(
+          1.0,
+          maxCorrection / max(correctionX.abs(), correctionY.abs()),
+        );
+
+        bestX -= correctionX * scaleFactor;
+        bestY -= correctionY * scaleFactor;
+
+        // 발산 방지: 값이 너무 커지면 중단
+        if (bestX.abs() > 1000.0 || bestY.abs() > 1000.0) {
+          return (0.0, 0.0);
+        }
+      }
+
+      // 최종 검증
+      final (finalX, finalY, _) = transform(bestX, bestY, 0.0);
+      final finalError = sqrt(
+        pow(finalX - screenX, 2) + pow(finalY - screenY, 2),
+      );
+
+      // 오차가 너무 크면 안전한 기본값 반환
+      if (finalError > 100.0) {
+        return (0.0, 0.0);
+      }
+
+      return (bestX, bestY);
+    } catch (e) {
+      // 예외 발생 시 안전한 기본값 반환
+      print('Inverse transform error: $e');
+      return (0.0, 0.0);
     }
-
-    return (bestX, bestY);
   }
 
   Transform3D copyWith({
