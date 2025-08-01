@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:vector_math/vector_math.dart' as vm;
@@ -71,7 +72,7 @@ class PointGlassPolygon extends PointGlassGeometry {
   // Z 값 0으로 가정
   int? getClickedVertexIndex(double x, double y, double scale) {
     double threshold = 20.0 / scale;
-    if (Platform.isAndroid) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
       threshold = 50.0 / scale;
     }
 
