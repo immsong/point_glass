@@ -8,6 +8,7 @@ import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/models/point_glass_types.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/painters/point_glass_painter.dart';
+import 'package:point_glass/src/models/point_glass_points.dart';
 import 'package:point_glass/src/utils/transform_3d.dart';
 
 abstract class PointGlassViewerBase extends StatefulWidget {
@@ -22,6 +23,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
     this.axis,
     this.polygons,
     this.annualSectors,
+    this.pointsGroup,
   });
 
   final ValueNotifier<Transform3D> transform;
@@ -33,6 +35,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
   final PointGlassAxis? axis;
   final List<PointGlassPolygon>? polygons;
   final List<PointGlassAnnualSector>? annualSectors;
+  final List<PointGlassPoints>? pointsGroup;
 }
 
 abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
@@ -129,6 +132,7 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
           axis: widget.axis ?? PointGlassAxis(),
           polygons: widget.polygons ?? [],
           annualSectors: widget.annualSectors ?? [],
+          pointsGroup: widget.pointsGroup ?? [],
         ),
       ),
     );

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
+import 'package:point_glass/src/models/point_glass_points.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/models/point_glass_types.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
@@ -25,6 +26,7 @@ class PointGlassViewer extends StatelessWidget {
     this.axis,
     this.polygons,
     this.annualSectors,
+    this.pointsGroup,
   });
 
   final ValueNotifier<Transform3D> transform;
@@ -36,6 +38,7 @@ class PointGlassViewer extends StatelessWidget {
   final PointGlassAxis? axis;
   final List<PointGlassPolygon>? polygons;
   final List<PointGlassAnnualSector>? annualSectors;
+  final List<PointGlassPoints>? pointsGroup;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +54,7 @@ class PointGlassViewer extends StatelessWidget {
         axis: axis,
         polygons: polygons,
         annualSectors: annualSectors,
+        pointsGroup: pointsGroup,
       );
     } else {
       return PointGlassViewerMobile(
@@ -63,6 +67,7 @@ class PointGlassViewer extends StatelessWidget {
         axis: axis,
         polygons: polygons,
         annualSectors: annualSectors,
+        pointsGroup: pointsGroup,
       );
     }
   }

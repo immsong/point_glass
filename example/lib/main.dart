@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:vector_math/vector_math.dart' as vm;
 
@@ -66,7 +69,82 @@ class _MyHomePageState extends State<MyHomePage> {
     Transform3D(scale: 50, rotationX: 0, rotationY: 0, rotationZ: 0),
   );
 
+  List<PointGlassPoints> pointsGroup = [
+    PointGlassPoints(enable: true, points: []),
+    PointGlassPoints(enable: true, points: []),
+    PointGlassPoints(enable: true, points: []),
+    PointGlassPoints(enable: true, points: []),
+  ];
+  int pointGroupRefreshCount = 0;
+  int pointGroupRefreshInc = 1;
+
   PointGlassViewerMode viewMode = PointGlassViewerMode.rotate;
+
+  bool pointCloud1OnOff = true;
+  bool pointCloud2OnOff = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    rootBundle.loadString('assets/point_cloud_sample').then((value) {
+      PointGlassPoints pg = PointGlassPoints(enable: true, points: []);
+
+      final lines = value.split('\n');
+      pg.points = lines.map((line) {
+        final parts = line.split(',');
+        return PointGlassPoint(
+          point: vm.Vector3(
+            (double.parse(parts[0]) / 20.0) - 5,
+            (double.parse(parts[1]) / 20.0) + 5,
+            double.parse(parts[2]) / 20.0,
+          ),
+          color: Colors.grey,
+          alpha: 150,
+          strokeWidth: 1,
+        );
+      }).toList();
+
+      pointsGroup[1] = pg;
+
+      pg = PointGlassPoints(enable: true, points: []);
+      pg.points = lines.map((line) {
+        final parts = line.split(',');
+        return PointGlassPoint(
+          point: vm.Vector3(
+            (double.parse(parts[0]) / 20.0) + 5,
+            (double.parse(parts[1]) / 20.0) + 5,
+            double.parse(parts[2]) / 20.0,
+          ),
+          color: Color(0xFFDECAA0),
+          alpha: 150,
+          strokeWidth: 1,
+        );
+      }).toList();
+
+      pointsGroup[2] = pg;
+    });
+
+    // 25ms 당 한번 호출
+    Timer.periodic(Duration(milliseconds: 25), (timer) {
+      for (var i = 0; i < pointsGroup.length; i++) {
+        for (var j = 0; j < pointsGroup[i].points.length; j++) {
+          setState(() {
+            pointsGroup[i].points[j].point.y =
+                pointsGroup[i].points[j].point.y + (pointGroupRefreshInc * 0.1);
+          });
+        }
+      }
+
+      if (pointGroupRefreshCount > 50) {
+        pointGroupRefreshInc = -1;
+      } else if (pointGroupRefreshCount < 1) {
+        pointGroupRefreshInc = 1;
+      }
+
+      pointGroupRefreshCount += pointGroupRefreshInc;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -106,6 +184,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     lineAlpha: 255,
                   ),
                 ],
+                pointsGroup: pointsGroup,
               ),
             ),
             Expanded(flex: 3, child: _buildController()),
@@ -129,7 +208,7 @@ class _MyHomePageState extends State<MyHomePage> {
             _buildPolygonControlWidgets(),
             _buildAnnualSectorControlWidgets(),
             _buildViewerControlWidgets(),
-            // Spacer 제거 (스크롤이 있으므로 불필요)
+            _pointCloudControlWidgets(),
           ],
         ),
       ),
@@ -360,7 +439,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               child: Row(
                 children: [
-                  Expanded(flex: 2, child: label('View Mode')),
+                  Expanded(child: label('View Mode')),
                   Radio<PointGlassViewerMode>(
                     value: PointGlassViewerMode.rotate,
                     groupValue: viewMode,
@@ -368,6 +447,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         viewMode = value!;
                         isEditPolygon = false;
+                        for (var polygon in polygons) {
+                          polygon.isEditable = isEditPolygon;
+                        }
                       });
                     },
                   ),
@@ -379,6 +461,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         viewMode = value!;
                         isEditPolygon = false;
+                        for (var polygon in polygons) {
+                          polygon.isEditable = isEditPolygon;
+                        }
                       });
                     },
                   ),
@@ -393,7 +478,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               child: Row(
                 children: [
-                  const Spacer(flex: 2),
+                  const Spacer(),
                   Radio<PointGlassViewerMode>(
                     value: PointGlassViewerMode.spin,
                     groupValue: viewMode,
@@ -401,6 +486,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         viewMode = value!;
                         isEditPolygon = false;
+                        for (var polygon in polygons) {
+                          polygon.isEditable = isEditPolygon;
+                        }
                       });
                     },
                   ),
@@ -412,6 +500,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       setState(() {
                         viewMode = value!;
                         isEditPolygon = true;
+                        for (var polygon in polygons) {
+                          polygon.isEditable = isEditPolygon;
+                        }
                       });
                     },
                   ),
@@ -496,6 +587,51 @@ class _MyHomePageState extends State<MyHomePage> {
           ],
         );
       },
+    );
+  }
+
+  Widget _pointCloudControlWidgets() {
+    return Column(
+      children: [
+        title('Point Cloud'),
+        radioButton(
+          txt: 'Point Cloud 1On / Off',
+          groupValue: pointCloud1OnOff,
+          trueLabel: 'On',
+          falseLabel: 'Off',
+          onTrueAction: () {
+            setState(() {
+              pointCloud1OnOff = true;
+              pointsGroup[1].enable = pointCloud1OnOff;
+            });
+          },
+          onFalseAction: () {
+            setState(() {
+              pointCloud1OnOff = false;
+              pointsGroup[1].enable = pointCloud1OnOff;
+            });
+          },
+        ),
+        radioButton(
+          txt: 'Point Cloud 2 On / Off',
+          groupValue: pointCloud2OnOff,
+          trueLabel: 'On',
+          falseLabel: 'Off',
+          onTrueAction: () {
+            setState(() {
+              pointCloud2OnOff = true;
+              pointsGroup[2].enable = pointCloud2OnOff;
+            });
+          },
+          onFalseAction: () {
+            setState(() {
+              pointCloud2OnOff = false;
+              pointsGroup[2].enable = pointCloud2OnOff;
+            });
+          },
+        ),
+        horizontalLine(),
+      ],
     );
   }
 }

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
+import 'package:point_glass/src/models/point_glass_points.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/painters/point_glass_axis_painter.dart';
 import 'package:point_glass/src/painters/point_glass_grid_painter.dart';
+import 'package:point_glass/src/painters/point_glass_points_painter.dart';
 import 'package:point_glass/src/painters/point_glass_polygon_painter.dart';
 import 'package:point_glass/src/painters/point_glass_annual_sector_painter.dart';
 import 'package:point_glass/src/utils/transform_3d.dart';
@@ -16,11 +18,13 @@ class PointGlassPainter extends CustomPainter {
   final PointGlassAxis axis;
   final List<PointGlassPolygon> polygons;
   final List<PointGlassAnnualSector> annualSectors;
+  final List<PointGlassPoints> pointsGroup;
 
   late PointGlassGridPainter gridPainter;
   late PointGlassAxisPainter axisPainter;
   late PointGlassPolygonPainter polygonPainter;
   late PointGlassAnnualSectorPainter annualSectorPainter;
+  late PointGlassPointsPainter pointsGroupPainter;
 
   PointGlassPainter({
     required this.transform,
@@ -28,6 +32,7 @@ class PointGlassPainter extends CustomPainter {
     required this.axis,
     required this.polygons,
     required this.annualSectors,
+    required this.pointsGroup,
   }) {
     gridPainter = PointGlassGridPainter(transform: transform, grid: grid);
     axisPainter = PointGlassAxisPainter(transform: transform, axis: axis);
@@ -38,6 +43,10 @@ class PointGlassPainter extends CustomPainter {
     annualSectorPainter = PointGlassAnnualSectorPainter(
       transform: transform,
       annualSectors: annualSectors,
+    );
+    pointsGroupPainter = PointGlassPointsPainter(
+      transform: transform,
+      pointsGroup: pointsGroup,
     );
   }
 
@@ -65,6 +74,11 @@ class PointGlassPainter extends CustomPainter {
     if (annualSectors.isNotEmpty) {
       // 각 AnnualSector 안에서 enable 체크
       annualSectorPainter.draw(canvas, size);
+    }
+
+    if (pointsGroup.isNotEmpty) {
+      // 각 PointsGroup 안에서 enable 체크
+      pointsGroupPainter.draw(canvas, size);
     }
 
     canvas.restore();

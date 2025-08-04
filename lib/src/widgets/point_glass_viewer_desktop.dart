@@ -22,6 +22,7 @@ class PointGlassViewerDesktop extends PointGlassViewerBase {
     super.axis,
     super.polygons,
     super.annualSectors,
+    super.pointsGroup,
   });
 
   @override

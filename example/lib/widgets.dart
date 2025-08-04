@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-const titleStyle = TextStyle(fontSize: 20, fontWeight: FontWeight.bold);
+const titleStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
 const titleHeight = 40.0;
-const labelStyle = TextStyle(fontSize: 16);
+const labelStyle = TextStyle(fontSize: 12);
 const labelHeight = 30.0;
 
 Widget title(String text) {

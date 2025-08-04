@@ -5,4 +5,6 @@ export 'src/models/point_glass_grid.dart';
 export 'src/models/point_glass_axis.dart';
 export 'src/models/point_glass_polygon.dart';
 export 'src/models/point_glass_annual_sector.dart';
+export 'src/models/point_glass_point.dart';
+export 'src/models/point_glass_points.dart';
 export 'src/models/point_glass_types.dart';
