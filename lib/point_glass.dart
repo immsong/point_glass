@@ -1,3 +1,13 @@
+/// Point Glass는 Flutter용 3D 포인트 클라우드 시각화 패키지입니다.
+///
+/// 이 패키지는 다음과 같은 주요 기능을 제공합니다:
+/// * 3D 포인트 클라우드 시각화
+/// * 인터랙티브 그리드
+/// * 좌표축 표시
+/// * 다각형 도구
+/// * 원형 섹터 표시
+library;
+
 export 'src/utils/transform_3d.dart';
 export 'src/widgets/point_glass_viewer.dart';
 export 'src/painters/point_glass_painter.dart';

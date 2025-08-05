@@ -137,7 +137,7 @@ class _PointGlassViewerDesktopState
     _handleMouseDragStart(localPosition, center);
   }
 
-  void _handlePointerUp(PointerUpEvent _, Offset _) {
+  void _handlePointerUp(PointerUpEvent details, Offset center) {
     _longPressTimer?.cancel();
   }
 
@@ -184,6 +184,10 @@ class _PointGlassViewerDesktopState
 
   // Polygon 선택을 위한 더블 클릭
   void _handleMouseDoubleClick(Offset localPosition, Offset center) {
+    if (widget.polygons == null) {
+      return;
+    }
+
     for (var i = 0; i < widget.polygons!.length; i++) {
       var polygon = widget.polygons![i];
       if (!polygon.isEditable) {
@@ -268,13 +272,19 @@ class _PointGlassViewerDesktopState
             ? [
                 PopupMenuItem(
                   value: 'add_point',
-                  child: Text('점 추가', style: widget.contextStyle.textStyle),
+                  child: Text(
+                    'Add Point',
+                    style: widget.contextStyle.textStyle,
+                  ),
                 ),
               ]
             : [
                 PopupMenuItem(
                   value: 'delete_point',
-                  child: Text('점 삭제', style: widget.contextStyle.textStyle),
+                  child: Text(
+                    'Delete Point',
+                    style: widget.contextStyle.textStyle,
+                  ),
                 ),
               ]),
       ],
@@ -308,6 +318,10 @@ class _PointGlassViewerDesktopState
     final point = widget.transform.value.inverseTransformToPlane(x, y);
 
     isDraggingPolygon = false;
+    if (widget.polygons == null) {
+      return;
+    }
+
     for (var i = 0; i < widget.polygons!.length; i++) {
       var polygon = widget.polygons![i];
       if (!polygon.isEditable) {

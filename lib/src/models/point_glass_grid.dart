@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 
 import 'package:point_glass/src/models/point_glass_geometry.dart';
 
+/// 3D 그리드의 설정을 정의하는 클래스입니다.
 class PointGlassGrid extends PointGlassGeometry {
-  // 그리드 크기, gridSize x gridSize
+  /// 그리드 크기, gridSize x gridSize
   double gridSize;
 
-  // 그리드 간격
+  /// 그리드 간격
   double gridStep;
 
-  // 라벨 표시 여부
+  /// 라벨 표시 여부
   bool enableLabel;
 
-  // 라벨 스타일
+  /// 라벨 스타일
   TextStyle labelStyle;
 
   PointGlassGrid({
