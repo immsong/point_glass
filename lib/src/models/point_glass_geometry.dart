@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
+/// 3D 객체의 기본 설정을 정의하는 클래스입니다.
 abstract class PointGlassGeometry {
-  // paint 여부
+  /// 객체 표시 여부
   bool enable;
 
-  // 색상
+  /// 색상
   Color color;
 
-  // 색상 투명도 0 - 255
+  /// 색상 투명도 0 - 255
   int alpha;
 
-  // 선, 점 두께
+  /// 선, 점등 객체 두께
   double strokeWidth;
 
   PointGlassGeometry({

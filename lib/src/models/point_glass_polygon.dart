@@ -8,26 +8,27 @@ import 'package:vector_math/vector_math.dart' as vm;
 
 import 'package:point_glass/src/models/point_glass_geometry.dart';
 
+/// 3D 다각형의 설정을 정의하는 클래스입니다.
 class PointGlassPolygon extends PointGlassGeometry {
-  // 다각형 꼭지점
+  /// 다각형 꼭지점
   List<vm.Vector3> points;
 
-  // 꼭지점 크기
+  /// 꼭지점 크기
   double pointSize;
 
-  // 꼭지점 색상
+  /// 꼭지점 색상
   Color pointColor;
 
-  // 수정 가능 여부, 수정 시 Z 값이 0이라고 가정 후 계산
+  /// 수정 가능 여부, 수정 시 Z 값이 0이라고 가정 후 계산
   bool isEditable;
 
-  // 선택된 다각형 (Edit 모드에서 사용)
+  /// 선택된 다각형 (Edit 모드에서 사용)
   bool selectedPolygon;
 
-  // 선택된 꼭지점 인덱스 (Edit 모드에서 사용)
+  /// 선택된 꼭지점 인덱스 (Edit 모드에서 사용)
   int selectedVertexIndex;
 
-  // 호버된 꼭지점 인덱스 (Edit 모드에서 사용)
+  /// 호버된 꼭지점 인덱스 (Edit 모드에서 사용)
   int hoveredVertexIndex;
 
   PointGlassPolygon({
