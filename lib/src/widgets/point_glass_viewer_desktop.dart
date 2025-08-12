@@ -13,7 +13,7 @@ import 'point_glass_viewer_base.dart';
 class PointGlassViewerDesktop extends PointGlassViewerBase {
   const PointGlassViewerDesktop({
     super.key,
-    required super.transform,
+    required super.viewContext,
     required super.contextStyle,
     required super.minScale,
     required super.maxScale,
@@ -73,8 +73,8 @@ class _PointGlassViewerDesktopState
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         final center = Offset(
-          size.width / 2 + widget.transform.value.positionX,
-          size.height / 2 + widget.transform.value.positionY,
+          size.width / 2 + widget.viewContext.value.canvasCenter.dx,
+          size.height / 2 + widget.viewContext.value.canvasCenter.dy,
         );
 
         return Listener(
@@ -153,7 +153,7 @@ class _PointGlassViewerDesktopState
     } else if (_isCtrlPressed || widget.mode == PointGlassViewerMode.spin) {
       // Z축 기준 회전 (X축 방향으로 이동 시 동작)
       if (details.delta != Offset.zero) {
-        rotateZ(widget.transform.value.radians(details.delta.dx * 0.1));
+        rotateZ(details.delta.dx > 0 ? 0.1 : -0.1);
       }
     } else if (widget.mode == PointGlassViewerMode.editPolygon) {
       // 폴리곤 편집
@@ -166,7 +166,6 @@ class _PointGlassViewerDesktopState
       // 화면 회전
       if (details.delta != Offset.zero) {
         rotateXY(details.delta);
-        rotateZ(widget.transform.value.radians(details.delta.dx * 0.1));
       }
     }
   }
@@ -196,8 +195,13 @@ class _PointGlassViewerDesktopState
 
       final x = localPosition.dx - center.dx;
       final y = localPosition.dy - center.dy;
-      final point = widget.transform.value.inverseTransformToPlane(x, y);
-      if (polygon.isPointInPolygon(point.$1, point.$2)) {
+      final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
+
+      if (point == null) {
+        continue;
+      }
+
+      if (polygon.isPointInPolygon(point.x, point.y)) {
         setState(() {
           if (polygon.selectedPolygon) {
             polygon.selectedPolygon = false;
@@ -229,7 +233,11 @@ class _PointGlassViewerDesktopState
 
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = widget.transform.value.inverseTransformToPlane(x, y);
+    final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
+
+    if (point == null) {
+      return;
+    }
 
     int targetPolygonIndex = -1;
     int targetVertexIndex = -1;
@@ -240,9 +248,8 @@ class _PointGlassViewerDesktopState
       }
 
       int? vertexIdx = polygon.getClickedVertexIndex(
-        point.$1,
-        point.$2,
-        widget.transform.value.scale,
+        point.x,
+        point.y,
       );
 
       if (vertexIdx != null && polygon.points.length <= 3) {
@@ -291,14 +298,14 @@ class _PointGlassViewerDesktopState
     ).then((value) {
       if (value == 'add_point') {
         final edgeIndex = widget.polygons![targetPolygonIndex].findClosestEdge(
-          point.$1,
-          point.$2,
+          point.x,
+          point.y,
         );
 
         setState(() {
           widget.polygons![targetPolygonIndex].points.insert(
             edgeIndex + 1,
-            vm.Vector3(point.$1, point.$2, 0.0),
+            vm.Vector3(point.x, point.y, 0.0),
           );
         });
       } else if (value == 'delete_point') {
@@ -315,7 +322,7 @@ class _PointGlassViewerDesktopState
   void _handleMouseDragStart(Offset localPosition, Offset center) {
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = widget.transform.value.inverseTransformToPlane(x, y);
+    final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
 
     isDraggingPolygon = false;
     if (widget.polygons == null) {
@@ -332,17 +339,20 @@ class _PointGlassViewerDesktopState
         continue;
       }
 
+      if (point == null) {
+        continue;
+      }
+
       int? vertexIdx = polygon.getClickedVertexIndex(
-        point.$1,
-        point.$2,
-        widget.transform.value.scale,
+        point.x,
+        point.y,
       );
       if (vertexIdx != null) {
         isDraggingPolygon = true;
         polygon.selectedVertexIndex = vertexIdx;
         break;
       } else {
-        if (polygon.isPointInPolygon(point.$1, point.$2)) {
+        if (polygon.isPointInPolygon(point.x, point.y)) {
           isDraggingPolygon = true;
           polygon.selectedVertexIndex = -1;
           break;
@@ -373,12 +383,15 @@ class _PointGlassViewerDesktopState
 
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = widget.transform.value.inverseTransformToPlane(x, y);
+    final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
+
+    if (point == null) {
+      return;
+    }
 
     int? vertexIdx = widget.polygons![targetPolygonIndex].getClickedVertexIndex(
-      point.$1,
-      point.$2,
-      widget.transform.value.scale,
+      point.x,
+      point.y,
     );
 
     setState(() {

@@ -5,14 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
-import 'package:point_glass/src/utils/transform_3d.dart';
+import 'package:point_glass/src/utils/view_context.dart';
 
 class PointGlassAnnualSectorPainter {
-  final Transform3D transform;
+  final ViewContext viewContext;
   final List<PointGlassAnnualSector> annualSectors;
 
   PointGlassAnnualSectorPainter({
-    required this.transform,
+    required this.viewContext,
     required this.annualSectors,
   });
 
@@ -34,22 +34,28 @@ class PointGlassAnnualSectorPainter {
       final outerPoints = <Offset>[];
 
       // 5도 간격으로 선을 그려 원처럼 보이도록
-      for (
-        var i = annualSector.startAngle;
-        i <= annualSector.endAngle;
-        i += 5
-      ) {
+      for (var i = annualSector.startAngle;
+          i <= annualSector.endAngle;
+          i += 5) {
         final angle = vm.radians(i.toDouble());
         final innerX = annualSector.innerRadius * cos(angle);
         final innerY = annualSector.innerRadius * sin(angle);
         final outerX = annualSector.outerRadius * cos(angle);
         final outerY = annualSector.outerRadius * sin(angle);
 
-        final innerTransformed = transform.transform(innerX, innerY, 0);
-        final outerTransformed = transform.transform(outerX, outerY, 0);
+        final innerTransformed = viewContext.projectModel(innerX, innerY, 0);
+        final outerTransformed = viewContext.projectModel(outerX, outerY, 0);
 
-        innerPoints.add(Offset(innerTransformed.$1, innerTransformed.$2));
-        outerPoints.add(Offset(outerTransformed.$1, outerTransformed.$2));
+        if (innerTransformed.p == null || outerTransformed.p == null) {
+          continue;
+        }
+
+        innerPoints.add(innerTransformed.p!);
+        outerPoints.add(outerTransformed.p!);
+      }
+
+      if (innerPoints.isEmpty || outerPoints.isEmpty) {
+        continue;
       }
 
       for (var i = 0; i < innerPoints.length - 1; i++) {

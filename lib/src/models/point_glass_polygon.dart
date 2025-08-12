@@ -71,10 +71,10 @@ class PointGlassPolygon extends PointGlassGeometry {
   }
 
   // Z 값 0으로 가정
-  int? getClickedVertexIndex(double x, double y, double scale) {
-    double threshold = 20.0 / scale;
+  int? getClickedVertexIndex(double x, double y) {
+    double threshold = 0.5;
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      threshold = 50.0 / scale;
+      threshold = 1;
     }
 
     for (int i = 0; i < points.length; i++) {
@@ -124,8 +124,8 @@ class PointGlassPolygon extends PointGlassGeometry {
     double y2,
   ) {
     // 선분의 길이의 제곱
-    double segmentLengthSquared = (pow(x2 - x1, 2) + pow(y2 - y1, 2))
-        .toDouble();
+    double segmentLengthSquared =
+        (pow(x2 - x1, 2) + pow(y2 - y1, 2)).toDouble();
 
     if (segmentLengthSquared == 0) {
       // 선분이 점인 경우

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 import 'package:point_glass/src/models/point_glass_axis.dart';
-import 'package:point_glass/src/utils/transform_3d.dart';
+import 'package:point_glass/src/utils/view_context.dart';
 
 class PointGlassAxisPainter {
-  final Transform3D transform;
+  final ViewContext viewContext;
   final PointGlassAxis axis;
 
-  PointGlassAxisPainter({required this.transform, required this.axis});
+  PointGlassAxisPainter({required this.viewContext, required this.axis});
 
   void draw(Canvas canvas, Size size) {
     final xLinePaint = Paint()
@@ -21,30 +21,39 @@ class PointGlassAxisPainter {
       ..strokeWidth = axis.strokeWidth;
 
     // X축
-    final xStart = transform.transform(0, 0, 0);
-    final xEnd = transform.transform(axis.axisLength, 0, 0);
-    canvas.drawLine(
-      Offset(xStart.$1, xStart.$2),
-      Offset(xEnd.$1, xEnd.$2),
-      xLinePaint,
-    );
+    var prStart = viewContext.projectModel(0, 0, 0);
+    var prEnd = viewContext.projectModel(axis.axisLength, 0, 0);
+
+    if (prStart.p != null && prEnd.p != null) {
+      canvas.drawLine(
+        prStart.p!,
+        prEnd.p!,
+        xLinePaint,
+      );
+    }
 
     // Y축
-    final yStart = transform.transform(0, 0, 0);
-    final yEnd = transform.transform(0, axis.axisLength, 0);
-    canvas.drawLine(
-      Offset(yStart.$1, yStart.$2),
-      Offset(yEnd.$1, yEnd.$2),
-      yLinePaint,
-    );
+    prStart = viewContext.projectModel(0, 0, 0);
+    prEnd = viewContext.projectModel(0, axis.axisLength, 0);
+
+    if (prStart.p != null && prEnd.p != null) {
+      canvas.drawLine(
+        prStart.p!,
+        prEnd.p!,
+        yLinePaint,
+      );
+    }
 
     // Z축
-    final zStart = transform.transform(0, 0, 0);
-    final zEnd = transform.transform(0, 0, axis.axisLength);
-    canvas.drawLine(
-      Offset(zStart.$1, zStart.$2),
-      Offset(zEnd.$1, zEnd.$2),
-      zLinePaint,
-    );
+    prStart = viewContext.projectModel(0, 0, 0);
+    prEnd = viewContext.projectModel(0, 0, axis.axisLength);
+
+    if (prStart.p != null && prEnd.p != null) {
+      canvas.drawLine(
+        prStart.p!,
+        prEnd.p!,
+        zLinePaint,
+      );
+    }
   }
 }
