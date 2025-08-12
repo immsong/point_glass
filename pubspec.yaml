@@ -1,6 +1,6 @@
 name: point_glass
 description: "A Flutter package for 3D point cloud visualization with interactive grid, axis, polygons, and annual sectors."
-version: 1.0.0
+version: 1.0.1
 homepage: https://github.com/immsong/point_glass
 repository: https://github.com/immsong/point_glass
 issue_tracker: https://github.com/immsong/point_glass/issues

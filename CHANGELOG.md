@@ -1,3 +1,8 @@
+## 1.0.1
+
+* Fixed README documentation with correct API usage
+* Updated usage examples to match actual implementation
+
 ## 1.0.0
 
 * Breaking changes: Transform3D class removed and replaced with PinholeCamera architecture

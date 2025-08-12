@@ -5,7 +5,7 @@ A Flutter package for 3D point cloud visualization with interactive features inc
 ## Features
 
 - 🎯 **3D Point Cloud Visualization**: Display and interact with point cloud data
-- 🎯 **Interactive Grid**: Customizable 3D grid with labels
+- ⬜ **Interactive Grid**: Customizable 3D grid with labels
 - 🧭 **Axis Display**: Configurable coordinate axes
 - 🔷 **Polygon Support**: Create and edit 3D polygons
 - 🍕 **Annual Sectors**: Display annular sectors with customizable angles and radii
@@ -46,14 +46,19 @@ import 'package:point_glass/point_glass.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
-// PinholeCamera 초기화
-final camera = ValueNotifier(
-  PinholeCamera(cameraZ: 500, yaw: 0, pitch: 0, roll: 0),
+// ViewContext 초기화
+final viewContext = ValueNotifier(
+  ViewContext(
+    model: ModelTransform(),
+    camera: PinholeCamera(cameraZ: 10),
+    proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+    canvasCenter: Offset(0, 0),
+  ),
 );
 
 // PointGlassViewer 사용
 PointGlassViewer(
-  camera: camera,
+  viewContext: viewContext,
   mode: PointGlassViewerMode.rotate,
   grid: PointGlassGrid(
     enable: true,
@@ -109,12 +114,17 @@ PointGlassViewer(
 )
 
 // After (1.0.0)
-final camera = ValueNotifier(
-  PinholeCamera(cameraZ: 500, yaw: 0, pitch: 0, roll: 0),
+final viewContext = ValueNotifier(
+  ViewContext(
+    model: ModelTransform(),
+    camera: PinholeCamera(cameraZ: 10),
+    proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+    canvasCenter: Offset(0, 0),
+  ),
 );
 
 PointGlassViewer(
-  camera: camera,
+  viewContext: viewContext,
   // ...
 )
 ```
