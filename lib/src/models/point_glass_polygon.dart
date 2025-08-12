@@ -31,6 +31,12 @@ class PointGlassPolygon extends PointGlassGeometry {
   /// 호버된 꼭지점 인덱스 (Edit 모드에서 사용)
   int hoveredVertexIndex;
 
+  /// 라벨 그룹 인덱스
+  int labelGroupIndex;
+
+  /// 라벨 표시 여부
+  bool enableLabel;
+
   PointGlassPolygon({
     super.enable,
     super.color,
@@ -43,6 +49,8 @@ class PointGlassPolygon extends PointGlassGeometry {
     this.selectedPolygon = false,
     this.selectedVertexIndex = -1,
     this.hoveredVertexIndex = -1,
+    this.labelGroupIndex = 0,
+    this.enableLabel = false,
   });
 
   // Z 값 0으로 가정
@@ -71,10 +79,10 @@ class PointGlassPolygon extends PointGlassGeometry {
   }
 
   // Z 값 0으로 가정
-  int? getClickedVertexIndex(double x, double y, double scale) {
-    double threshold = 20.0 / scale;
+  int? getClickedVertexIndex(double x, double y) {
+    double threshold = 0.5;
     if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-      threshold = 50.0 / scale;
+      threshold = 1;
     }
 
     for (int i = 0; i < points.length; i++) {
@@ -124,8 +132,8 @@ class PointGlassPolygon extends PointGlassGeometry {
     double y2,
   ) {
     // 선분의 길이의 제곱
-    double segmentLengthSquared = (pow(x2 - x1, 2) + pow(y2 - y1, 2))
-        .toDouble();
+    double segmentLengthSquared =
+        (pow(x2 - x1, 2) + pow(y2 - y1, 2)).toDouble();
 
     if (segmentLengthSquared == 0) {
       // 선분이 점인 경우

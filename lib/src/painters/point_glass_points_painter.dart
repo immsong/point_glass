@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'package:point_glass/src/models/point_glass_points.dart';
-import 'package:point_glass/src/utils/transform_3d.dart';
+import 'package:point_glass/src/utils/view_context.dart';
 
 class PointGlassPointsPainter {
-  final Transform3D transform;
+  final ViewContext viewContext;
   final List<PointGlassPoints> pointsGroup;
 
-  PointGlassPointsPainter({required this.transform, required this.pointsGroup});
+  PointGlassPointsPainter({
+    required this.viewContext,
+    required this.pointsGroup,
+  });
 
   void draw(Canvas canvas, Size size) {
     for (var points in pointsGroup) {
@@ -20,14 +23,18 @@ class PointGlassPointsPainter {
           ..color = point.color.withAlpha(point.alpha)
           ..style = PaintingStyle.fill;
 
-        final transformed = transform.transform(
+        final transformed = viewContext.projectModel(
           point.point.x,
           point.point.y,
           point.point.z,
         );
 
+        if (transformed.p == null) {
+          continue;
+        }
+
         canvas.drawCircle(
-          Offset(transformed.$1, transformed.$2),
+          transformed.p!,
           point.strokeWidth,
           pointPaint,
         );

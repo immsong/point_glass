@@ -9,12 +9,12 @@ import 'package:point_glass/src/models/point_glass_types.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/painters/point_glass_painter.dart';
 import 'package:point_glass/src/models/point_glass_points.dart';
-import 'package:point_glass/src/utils/transform_3d.dart';
+import 'package:point_glass/src/utils/view_context.dart';
 
 abstract class PointGlassViewerBase extends StatefulWidget {
   const PointGlassViewerBase({
     super.key,
-    required this.transform,
+    required this.viewContext,
     required this.contextStyle,
     required this.minScale,
     required this.maxScale,
@@ -26,7 +26,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
     this.pointsGroup,
   });
 
-  final ValueNotifier<Transform3D> transform;
+  final ValueNotifier<ViewContext> viewContext;
   final PopupMenuStyle contextStyle;
   final double minScale;
   final double maxScale;
@@ -50,38 +50,43 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
   // 공통 메서드들
   void rotateZ(double rotation) {
     setState(() {
-      widget.transform.value = widget.transform.value.copyWith(
-        rotationZ:
-            widget.transform.value.rotationZ +
-            widget.transform.value.degrees(rotation),
+      widget.viewContext.value = widget.viewContext.value.copyWith(
+        camera: widget.viewContext.value.camera.copyWith(
+          roll: widget.viewContext.value.camera.roll + degrees(rotation),
+        ),
       );
     });
   }
 
   void rotateXY(Offset delta) {
+    // 민감도
+    const double degPerPx = 0.25;
     setState(() {
-      widget.transform.value = widget.transform.value.copyWith(
-        rotationY: widget.transform.value.rotationY + delta.dx * 0.5,
-        rotationX: widget.transform.value.rotationX + delta.dy * -0.5,
+      final newYaw =
+          widget.viewContext.value.camera.yaw + delta.dx * degPerPx; // 민감도
+      final newPitch =
+          (widget.viewContext.value.camera.pitch - delta.dy * -degPerPx);
+      widget.viewContext.value = widget.viewContext.value.copyWith(
+        camera: widget.viewContext.value.camera
+            .copyWith(yaw: newYaw, pitch: newPitch),
       );
     });
   }
 
   void scaleUpdate(double scale) {
-    final newScale = (widget.transform.value.scale * scale).clamp(
-      widget.minScale,
-      widget.maxScale,
-    );
     setState(() {
-      widget.transform.value = widget.transform.value.copyWith(scale: newScale);
+      final newZ = (widget.viewContext.value.camera.cameraZ / scale)
+          .clamp(widget.minScale, widget.maxScale);
+      widget.viewContext.value = widget.viewContext.value.copyWith(
+        camera: widget.viewContext.value.camera.copyWith(cameraZ: newZ),
+      );
     });
   }
 
   void translate(Offset delta) {
     setState(() {
-      widget.transform.value = widget.transform.value.copyWith(
-        positionX: widget.transform.value.positionX + delta.dx,
-        positionY: widget.transform.value.positionY + delta.dy,
+      widget.viewContext.value = widget.viewContext.value.copyWith(
+        canvasCenter: widget.viewContext.value.canvasCenter + delta,
       );
     });
   }
@@ -94,16 +99,20 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
         continue;
       }
 
-      final (worldDeltaX, worldDeltaY) = widget.transform.value
-          .inverseTransformToPlane(delta.dx, delta.dy);
-      final (originX, originY) = widget.transform.value.inverseTransformToPlane(
-        0.0,
-        0.0,
+      final worldDelta =
+          widget.viewContext.value.screenToModelZ0(sx: delta.dx, sy: delta.dy);
+      final origin = widget.viewContext.value.screenToModelZ0(
+        sx: 0.0,
+        sy: 0.0,
       );
 
+      if (worldDelta == null || origin == null) {
+        continue;
+      }
+
       // 실제 이동량 계산
-      final realDeltaX = worldDeltaX - originX;
-      final realDeltaY = worldDeltaY - originY;
+      final realDeltaX = worldDelta.x - origin.x;
+      final realDeltaY = worldDelta.y - origin.y;
 
       int selectedVertexIndex = polygon.selectedVertexIndex;
       if (selectedVertexIndex == -1) {
@@ -116,7 +125,7 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
         setState(() {
           polygon.points[selectedVertexIndex] =
               polygon.points[selectedVertexIndex] +
-              vm.Vector3(realDeltaX, realDeltaY, 0.0);
+                  vm.Vector3(realDeltaX, realDeltaY, 0.0);
         });
       }
     }
@@ -127,7 +136,7 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
     return SizedBox.expand(
       child: CustomPaint(
         painter: PointGlassPainter(
-          transform: widget.transform.value,
+          viewContext: widget.viewContext.value,
           grid: widget.grid ?? PointGlassGrid(),
           axis: widget.axis ?? PointGlassAxis(),
           polygons: widget.polygons ?? [],

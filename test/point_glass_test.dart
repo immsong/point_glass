@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -28,15 +26,14 @@ void main() {
       expect(axis.axisLength, 0.5);
     });
 
-    test('should create Transform3D', () {
-      final transform = Transform3D(
-        scale: 50,
-        rotationX: 0,
-        rotationY: 0,
-        rotationZ: 0,
+    test('should create ViewContext', () {
+      final viewContext = ViewContext(
+        model: ModelTransform(),
+        camera: PinholeCamera(cameraZ: 10),
+        proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+        canvasCenter: Offset(0, 0),
       );
-      expect(transform.scale, 50);
-      expect(transform.rotationX, 0);
+      expect(viewContext.model.scale, equals(1.0));
     });
 
     test('should create PointGlassPolygon', () {
@@ -78,7 +75,12 @@ void main() {
 
     group('Widget Tests', () {
       testWidgets('PointGlassViewer should render correctly', (tester) async {
-        final transform = ValueNotifier(Transform3D(scale: 50));
+        final viewContext = ValueNotifier(ViewContext(
+          model: ModelTransform(),
+          camera: PinholeCamera(cameraZ: 10),
+          proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+          canvasCenter: Offset(0, 0),
+        ));
 
         await tester.pumpWidget(MaterialApp(
           home: Scaffold(
@@ -89,7 +91,7 @@ void main() {
                 width: 800,
                 height: 600,
                 child: PointGlassViewer(
-                  transform: transform,
+                  viewContext: viewContext,
                   mode: PointGlassViewerMode.rotate, // 모드 명시
                   grid: PointGlassGrid(enable: true),
                 ),
@@ -104,10 +106,15 @@ void main() {
       testWidgets('PointGlassViewer should handle user interactions', (
         tester,
       ) async {
-        final transform = ValueNotifier(Transform3D(scale: 50));
+        final viewContext = ValueNotifier(ViewContext(
+          model: ModelTransform(),
+          camera: PinholeCamera(cameraZ: 10),
+          proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+          canvasCenter: Offset(0, 0),
+        ));
 
         await tester.pumpWidget(
-          MaterialApp(home: PointGlassViewer(transform: transform)),
+          MaterialApp(home: PointGlassViewer(viewContext: viewContext)),
         );
 
         await tester.drag(
@@ -127,45 +134,61 @@ void main() {
 
     group('Transform3D Tests', () {
       test('should initialize with default values', () {
-        final transform = Transform3D();
-        expect(transform.scale, equals(100.0));
-        expect(transform.rotationX, equals(0.0));
-        expect(transform.rotationY, equals(0.0));
-        expect(transform.rotationZ, equals(0.0));
-        expect(transform.positionX, equals(0.0));
-        expect(transform.positionY, equals(0.0));
+        final viewContext = ViewContext(
+          model: ModelTransform(),
+          camera: PinholeCamera(cameraZ: 10),
+          proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+          canvasCenter: Offset(0, 0),
+        );
+        expect(viewContext.model.scale, equals(1.0));
+        expect(viewContext.camera.yaw, equals(0.0));
+        expect(viewContext.camera.pitch, equals(0.0));
+        expect(viewContext.camera.roll, equals(0.0));
       });
 
       test('should transform point correctly', () {
-        final transform = Transform3D(
-          scale: 100,
-          rotationX: 45,
-          rotationY: 30,
-          rotationZ: 0,
+        final viewContext = ViewContext(
+          model: ModelTransform(),
+          camera: PinholeCamera(cameraZ: 10),
+          proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+          canvasCenter: Offset(0, 0),
         );
 
-        final (x, y, z) = transform.transform(1, 1, 1);
-        expect(x, isNotNull);
-        expect(y, isNotNull);
-        expect(z, isNotNull);
+        final point = viewContext.projectModel(1, 1, 1);
+        expect(point.p, isNotNull);
+        expect(point.vz, isNotNull);
       });
 
       test('should copy with new values', () {
-        final transform = Transform3D(scale: 100);
-        final copied = transform.copyWith(
-          scale: 200,
-          rotationX: 45,
+        final viewContext = ViewContext(
+          model: ModelTransform(),
+          camera: PinholeCamera(cameraZ: 10),
+          proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+          canvasCenter: Offset(0, 0),
+        );
+        final copied = viewContext.copyWith(
+          camera: PinholeCamera(cameraZ: 20),
         );
 
-        expect(copied.scale, equals(200));
-        expect(copied.rotationX, equals(45));
-        expect(copied.rotationY, equals(0)); // 원래 값 유지
+        expect(copied.camera.cameraZ, equals(20));
       });
 
       test('should convert between degrees and radians', () {
-        final transform = Transform3D();
-        expect(transform.radians(180), closeTo(pi, 0.0001));
-        expect(transform.degrees(pi), closeTo(180, 0.0001));
+        final viewContext = ViewContext(
+          model: ModelTransform(),
+          camera: PinholeCamera(cameraZ: 10),
+          proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+          canvasCenter: Offset(0, 0),
+        );
+
+        // 기본값이 0.0이므로 0도/0 라디안으로 테스트
+        expect(radians(viewContext.camera.yaw), closeTo(0.0, 0.0001));
+        expect(radians(viewContext.camera.pitch), closeTo(0.0, 0.0001));
+        expect(radians(viewContext.camera.roll), closeTo(0.0, 0.0001));
+        expect(degrees(radians(viewContext.camera.yaw)), closeTo(0.0, 0.0001));
+        expect(
+            degrees(radians(viewContext.camera.pitch)), closeTo(0.0, 0.0001));
+        expect(degrees(radians(viewContext.camera.roll)), closeTo(0.0, 0.0001));
       });
     });
 
@@ -197,9 +220,14 @@ void main() {
 
     group('PointGlassViewer Mode Tests', () {
       test('should handle mode changes', () {
-        final transform = ValueNotifier(Transform3D(scale: 50));
+        final viewContext = ValueNotifier(ViewContext(
+          model: ModelTransform(),
+          camera: PinholeCamera(cameraZ: 10),
+          proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+          canvasCenter: Offset(0, 0),
+        ));
         final viewer = PointGlassViewer(
-          transform: transform,
+          viewContext: viewContext,
           mode: PointGlassViewerMode.rotate,
         );
 
@@ -246,12 +274,17 @@ void main() {
     });
 
     testWidgets('Full interaction flow test', (tester) async {
-      final transform = ValueNotifier(Transform3D(scale: 50));
+      final viewContext = ValueNotifier(ViewContext(
+        model: ModelTransform(),
+        camera: PinholeCamera(cameraZ: 10),
+        proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+        canvasCenter: Offset(0, 0),
+      ));
 
       await tester.pumpWidget(
         MaterialApp(
           home: PointGlassViewer(
-            transform: transform,
+            viewContext: viewContext,
             grid: PointGlassGrid(enable: true),
             polygons: [
               PointGlassPolygon(

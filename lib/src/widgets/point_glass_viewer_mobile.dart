@@ -8,7 +8,7 @@ import 'point_glass_viewer_base.dart';
 class PointGlassViewerMobile extends PointGlassViewerBase {
   const PointGlassViewerMobile({
     super.key,
-    required super.transform,
+    required super.viewContext,
     required super.contextStyle,
     required super.minScale,
     required super.maxScale,
@@ -32,8 +32,8 @@ class _PointGlassViewerMobileState
       builder: (context, constraints) {
         final size = Size(constraints.maxWidth, constraints.maxHeight);
         final center = Offset(
-          size.width / 2 + widget.transform.value.positionX,
-          size.height / 2 + widget.transform.value.positionY,
+          size.width / 2 + widget.viewContext.value.canvasCenter.dx,
+          size.height / 2 + widget.viewContext.value.canvasCenter.dy,
         );
 
         return GestureDetector(
@@ -62,7 +62,11 @@ class _PointGlassViewerMobileState
   void _handleMobileDoubleTap(Offset localPosition, Offset center) {
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = widget.transform.value.inverseTransformToPlane(x, y);
+
+    final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
+    if (point == null) {
+      return;
+    }
 
     for (var i = 0; i < widget.polygons!.length; i++) {
       var polygon = widget.polygons![i];
@@ -70,7 +74,7 @@ class _PointGlassViewerMobileState
         continue;
       }
 
-      if (polygon.isPointInPolygon(point.$1, point.$2)) {
+      if (polygon.isPointInPolygon(point.x, point.y)) {
         setState(() {
           if (polygon.selectedPolygon) {
             polygon.selectedPolygon = false;
@@ -101,7 +105,10 @@ class _PointGlassViewerMobileState
 
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = widget.transform.value.inverseTransformToPlane(x, y);
+    final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
+    if (point == null) {
+      return;
+    }
 
     int targetPolygonIndex = -1;
     int targetVertexIndex = -1;
@@ -112,9 +119,8 @@ class _PointGlassViewerMobileState
       }
 
       int? vertexIdx = polygon.getClickedVertexIndex(
-        point.$1,
-        point.$2,
-        widget.transform.value.scale,
+        point.x,
+        point.y,
       );
 
       if (vertexIdx != null && polygon.points.length <= 3) {
@@ -161,12 +167,12 @@ class _PointGlassViewerMobileState
         // add point
         case 0:
           final edgeIndex = widget.polygons![targetPolygonIndex]
-              .findClosestEdge(point.$1, point.$2);
+              .findClosestEdge(point.x, point.y);
 
           setState(() {
             widget.polygons![targetPolygonIndex].points.insert(
               edgeIndex + 1,
-              vm.Vector3(point.$1, point.$2, 0.0),
+              vm.Vector3(point.x, point.y, 0.0),
             );
           });
           break;
@@ -186,7 +192,10 @@ class _PointGlassViewerMobileState
   void _handleMobileScaleStart(Offset localPosition, Offset center) {
     final x = localPosition.dx - center.dx;
     final y = localPosition.dy - center.dy;
-    final point = widget.transform.value.inverseTransformToPlane(x, y);
+    final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
+    if (point == null) {
+      return;
+    }
 
     isDraggingPolygon = false;
     for (var i = 0; i < widget.polygons!.length; i++) {
@@ -200,16 +209,15 @@ class _PointGlassViewerMobileState
       }
 
       int? vertexIdx = polygon.getClickedVertexIndex(
-        point.$1,
-        point.$2,
-        widget.transform.value.scale,
+        point.x,
+        point.y,
       );
       if (vertexIdx != null) {
         isDraggingPolygon = true;
         polygon.selectedVertexIndex = vertexIdx;
         break;
       } else {
-        if (polygon.isPointInPolygon(point.$1, point.$2)) {
+        if (polygon.isPointInPolygon(point.x, point.y)) {
           isDraggingPolygon = true;
           polygon.selectedVertexIndex = -1;
           break;
@@ -235,9 +243,7 @@ class _PointGlassViewerMobileState
     } else if (widget.mode == PointGlassViewerMode.spin) {
       // Z축 기준 회전 (X축 방향으로 이동 시 동작)
       if (details.focalPointDelta != Offset.zero) {
-        rotateZ(
-          widget.transform.value.radians(details.focalPointDelta.dx * 0.1),
-        );
+        rotateZ(details.focalPointDelta.dx > 0 ? 0.1 : -0.1);
       }
     } else if (widget.mode == PointGlassViewerMode.editPolygon) {
       // 폴리곤 편집
@@ -248,10 +254,6 @@ class _PointGlassViewerMobileState
       }
     } else {
       // 화면 회전
-      if (details.rotation != 0) {
-        rotateZ(details.rotation);
-      }
-
       if (details.focalPointDelta != Offset.zero) {
         rotateXY(details.focalPointDelta);
       }

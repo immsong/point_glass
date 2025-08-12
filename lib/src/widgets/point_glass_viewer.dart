@@ -9,7 +9,7 @@ import 'package:point_glass/src/models/point_glass_points.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
 import 'package:point_glass/src/models/point_glass_types.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
-import 'package:point_glass/src/utils/transform_3d.dart';
+import 'package:point_glass/src/utils/view_context.dart';
 
 import 'point_glass_viewer_mobile.dart';
 import 'point_glass_viewer_desktop.dart';
@@ -31,10 +31,10 @@ import 'point_glass_viewer_desktop.dart';
 class PointGlassViewer extends StatelessWidget {
   const PointGlassViewer({
     super.key,
-    required this.transform,
+    required this.viewContext,
     this.contextStyle = const PopupMenuStyle(),
-    this.minScale = 10.0,
-    this.maxScale = 10000.0,
+    this.minScale = 1,
+    this.maxScale = 100,
     this.mode = PointGlassViewerMode.rotate,
     this.grid,
     this.axis,
@@ -43,9 +43,7 @@ class PointGlassViewer extends StatelessWidget {
     this.pointsGroup,
   });
 
-  /// 3D 객체의 현재 변환 상태를 저장하는 ValueNotifier입니다.
-  /// 이 값을 변경하여 3D 객체의 위치, 회전, 확대/축소를 조정할 수 있습니다.
-  final ValueNotifier<Transform3D> transform;
+  final ValueNotifier<ViewContext> viewContext;
 
   /// Polygon Edit 시 팝업 컨텍스트 메뉴의 스타일을 정의하는 클래스입니다.
   final PopupMenuStyle contextStyle;
@@ -79,7 +77,7 @@ class PointGlassViewer extends StatelessWidget {
     // 웹은 데스크톱 방식 사용
     if (kIsWeb || Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
       return PointGlassViewerDesktop(
-        transform: transform,
+        viewContext: viewContext,
         contextStyle: contextStyle,
         minScale: minScale,
         maxScale: maxScale,
@@ -92,7 +90,7 @@ class PointGlassViewer extends StatelessWidget {
       );
     } else {
       return PointGlassViewerMobile(
-        transform: transform,
+        viewContext: viewContext,
         contextStyle: contextStyle,
         minScale: minScale,
         maxScale: maxScale,

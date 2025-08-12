@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 
 import 'package:point_glass/src/models/point_glass_polygon.dart';
-import 'package:point_glass/src/utils/transform_3d.dart';
+import 'package:point_glass/src/utils/view_context.dart';
 
 class PointGlassPolygonPainter {
-  final Transform3D transform;
+  final ViewContext viewContext;
   final List<PointGlassPolygon> polygons;
 
-  PointGlassPolygonPainter({required this.transform, required this.polygons});
+  PointGlassPolygonPainter({required this.viewContext, required this.polygons});
 
   void draw(Canvas canvas, Size size) {
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
+
     for (var polygon in polygons) {
       if (!polygon.enable) {
         continue;
@@ -26,20 +31,53 @@ class PointGlassPolygonPainter {
 
       final path = Path();
 
-      final first = transform.transform(
+      final first = viewContext.projectModel(
         polygon.points.first.x,
         polygon.points.first.y,
         polygon.points.first.z,
       );
 
-      path.moveTo(first.$1, first.$2);
+      if (first.p == null) {
+        continue;
+      }
+
+      if (polygon.enableLabel) {
+        textPainter.text = TextSpan(
+            text: "(${polygon.labelGroupIndex}-0)",
+            style: TextStyle(color: polygon.color));
+        textPainter.layout();
+        textPainter.paint(
+          canvas,
+          Offset(first.p!.dx - textPainter.width / 2,
+              first.p!.dy - (textPainter.height * 1.5)),
+        );
+      }
+
+      path.moveTo(first.p!.dx, first.p!.dy);
       for (var i = 1; i < polygon.points.length; i++) {
-        final point = transform.transform(
+        final point = viewContext.projectModel(
           polygon.points[i].x,
           polygon.points[i].y,
           polygon.points[i].z,
         );
-        path.lineTo(point.$1, point.$2);
+
+        if (point.p == null) {
+          continue;
+        }
+
+        if (polygon.enableLabel) {
+          textPainter.text = TextSpan(
+              text: "(${polygon.labelGroupIndex}-$i)",
+              style: TextStyle(color: polygon.color));
+          textPainter.layout();
+          textPainter.paint(
+            canvas,
+            Offset(point.p!.dx - textPainter.width / 2,
+                point.p!.dy - (textPainter.height * 1.5)),
+          );
+        }
+
+        path.lineTo(point.p!.dx, point.p!.dy);
       }
 
       path.close();
@@ -48,19 +86,24 @@ class PointGlassPolygonPainter {
 
       if (polygon.selectedPolygon) {
         for (var i = 0; i < polygon.points.length - 1; i++) {
-          final point1 = transform.transform(
+          final point1 = viewContext.projectModel(
             polygon.points[i].x,
             polygon.points[i].y,
             polygon.points[i].z,
           );
-          final point2 = transform.transform(
+          final point2 = viewContext.projectModel(
             polygon.points[i + 1].x,
             polygon.points[i + 1].y,
             polygon.points[i + 1].z,
           );
+
+          if (point1.p == null || point2.p == null) {
+            continue;
+          }
+
           canvas.drawLine(
-            Offset(point1.$1, point1.$2),
-            Offset(point2.$1, point2.$2),
+            point1.p!,
+            point2.p!,
             Paint()
               ..color = polygon.color
               ..strokeWidth = polygon.strokeWidth * 2
@@ -68,19 +111,29 @@ class PointGlassPolygonPainter {
           );
         }
 
-        final point1 = transform.transform(
+        final point1 = viewContext.projectModel(
           polygon.points[polygon.points.length - 1].x,
           polygon.points[polygon.points.length - 1].y,
           polygon.points[polygon.points.length - 1].z,
         );
-        final point2 = transform.transform(
+
+        if (point1.p == null) {
+          continue;
+        }
+
+        final point2 = viewContext.projectModel(
           polygon.points[0].x,
           polygon.points[0].y,
           polygon.points[0].z,
         );
+
+        if (point1.p == null || point2.p == null) {
+          continue;
+        }
+
         canvas.drawLine(
-          Offset(point1.$1, point1.$2),
-          Offset(point2.$1, point2.$2),
+          point1.p!,
+          point2.p!,
           Paint()
             ..color = polygon.color
             ..strokeWidth = polygon.strokeWidth * 2
@@ -96,14 +149,18 @@ class PointGlassPolygonPainter {
       }
 
       for (var i = 0; i < polygon.points.length; i++) {
-        final point = transform.transform(
+        final point = viewContext.projectModel(
           polygon.points[i].x,
           polygon.points[i].y,
           polygon.points[i].z,
         );
 
+        if (point.p == null) {
+          continue;
+        }
+
         canvas.drawCircle(
-          Offset(point.$1, point.$2),
+          point.p!,
           polygon.pointSize * (polygon.hoveredVertexIndex == i ? 2 : 1),
           Paint()
             ..color = polygon.pointColor

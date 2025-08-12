@@ -8,7 +8,8 @@
 /// * 원형 섹터 표시
 library;
 
-export 'src/utils/transform_3d.dart';
+export 'src/utils/view_context.dart';
+export 'src/utils/camera.dart';
 export 'src/widgets/point_glass_viewer.dart';
 export 'src/painters/point_glass_painter.dart';
 export 'src/models/point_glass_grid.dart';

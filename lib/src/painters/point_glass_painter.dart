@@ -10,10 +10,10 @@ import 'package:point_glass/src/painters/point_glass_grid_painter.dart';
 import 'package:point_glass/src/painters/point_glass_points_painter.dart';
 import 'package:point_glass/src/painters/point_glass_polygon_painter.dart';
 import 'package:point_glass/src/painters/point_glass_annual_sector_painter.dart';
-import 'package:point_glass/src/utils/transform_3d.dart';
+import 'package:point_glass/src/utils/view_context.dart';
 
 class PointGlassPainter extends CustomPainter {
-  final Transform3D transform;
+  final ViewContext viewContext;
   final PointGlassGrid grid;
   final PointGlassAxis axis;
   final List<PointGlassPolygon> polygons;
@@ -27,25 +27,28 @@ class PointGlassPainter extends CustomPainter {
   late PointGlassPointsPainter pointsGroupPainter;
 
   PointGlassPainter({
-    required this.transform,
+    required this.viewContext,
     required this.grid,
     required this.axis,
     required this.polygons,
     required this.annualSectors,
     required this.pointsGroup,
   }) {
-    gridPainter = PointGlassGridPainter(transform: transform, grid: grid);
-    axisPainter = PointGlassAxisPainter(transform: transform, axis: axis);
+    gridPainter = PointGlassGridPainter(
+      grid: grid,
+      viewContext: viewContext,
+    );
+    axisPainter = PointGlassAxisPainter(viewContext: viewContext, axis: axis);
     polygonPainter = PointGlassPolygonPainter(
-      transform: transform,
+      viewContext: viewContext,
       polygons: polygons,
     );
     annualSectorPainter = PointGlassAnnualSectorPainter(
-      transform: transform,
+      viewContext: viewContext,
       annualSectors: annualSectors,
     );
     pointsGroupPainter = PointGlassPointsPainter(
-      transform: transform,
+      viewContext: viewContext,
       pointsGroup: pointsGroup,
     );
   }
@@ -54,8 +57,8 @@ class PointGlassPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.save();
     canvas.translate(
-      (size.width / 2) + transform.positionX,
-      (size.height / 2) + transform.positionY,
+      (size.width / 2) + viewContext.canvasCenter.dx,
+      (size.height / 2) + viewContext.canvasCenter.dy,
     );
 
     if (grid.enable) {
@@ -86,6 +89,6 @@ class PointGlassPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(PointGlassPainter oldDelegate) {
-    return oldDelegate.transform != transform;
+    return oldDelegate.viewContext != viewContext;
   }
 }
