@@ -10,6 +10,11 @@ class PointGlassPolygonPainter {
   PointGlassPolygonPainter({required this.viewContext, required this.polygons});
 
   void draw(Canvas canvas, Size size) {
+    final textPainter = TextPainter(
+      textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    );
+
     for (var polygon in polygons) {
       if (!polygon.enable) {
         continue;
@@ -36,6 +41,18 @@ class PointGlassPolygonPainter {
         continue;
       }
 
+      if (polygon.enableLabel) {
+        textPainter.text = TextSpan(
+            text: "(${polygon.labelGroupIndex}-0)",
+            style: TextStyle(color: polygon.color));
+        textPainter.layout();
+        textPainter.paint(
+          canvas,
+          Offset(first.p!.dx - textPainter.width / 2,
+              first.p!.dy - (textPainter.height * 1.5)),
+        );
+      }
+
       path.moveTo(first.p!.dx, first.p!.dy);
       for (var i = 1; i < polygon.points.length; i++) {
         final point = viewContext.projectModel(
@@ -46,6 +63,18 @@ class PointGlassPolygonPainter {
 
         if (point.p == null) {
           continue;
+        }
+
+        if (polygon.enableLabel) {
+          textPainter.text = TextSpan(
+              text: "(${polygon.labelGroupIndex}-$i)",
+              style: TextStyle(color: polygon.color));
+          textPainter.layout();
+          textPainter.paint(
+            canvas,
+            Offset(point.p!.dx - textPainter.width / 2,
+                point.p!.dy - (textPainter.height * 1.5)),
+          );
         }
 
         path.lineTo(point.p!.dx, point.p!.dy);

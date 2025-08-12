@@ -31,6 +31,12 @@ class PointGlassPolygon extends PointGlassGeometry {
   /// 호버된 꼭지점 인덱스 (Edit 모드에서 사용)
   int hoveredVertexIndex;
 
+  /// 라벨 그룹 인덱스
+  int labelGroupIndex;
+
+  /// 라벨 표시 여부
+  bool enableLabel;
+
   PointGlassPolygon({
     super.enable,
     super.color,
@@ -43,6 +49,8 @@ class PointGlassPolygon extends PointGlassGeometry {
     this.selectedPolygon = false,
     this.selectedVertexIndex = -1,
     this.hoveredVertexIndex = -1,
+    this.labelGroupIndex = 0,
+    this.enableLabel = false,
   });
 
   // Z 값 0으로 가정
