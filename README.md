@@ -5,7 +5,7 @@ A Flutter package for 3D point cloud visualization with interactive features inc
 ## Features
 
 - 🎯 **3D Point Cloud Visualization**: Display and interact with point cloud data
-- �� **Interactive Grid**: Customizable 3D grid with labels
+- 🎯 **Interactive Grid**: Customizable 3D grid with labels
 - 🧭 **Axis Display**: Configurable coordinate axes
 - 🔷 **Polygon Support**: Create and edit 3D polygons
 - 🍕 **Annual Sectors**: Display annular sectors with customizable angles and radii
@@ -36,7 +36,7 @@ Add this to your package's `pubspec.yaml` file:
  
 ```yaml
 dependencies:
-  point_glass: ^0.0.1
+  point_glass: ^1.0.0
 ```
 
 ## Usage
@@ -46,14 +46,14 @@ import 'package:point_glass/point_glass.dart';
 import 'package:flutter/material.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
-// Transform3D 초기화
-final transform = ValueNotifier(
-  Transform3D(scale: 50, rotationX: 0, rotationY: 0, rotationZ: 0),
+// PinholeCamera 초기화
+final camera = ValueNotifier(
+  PinholeCamera(cameraZ: 500, yaw: 0, pitch: 0, roll: 0),
 );
 
 // PointGlassViewer 사용
 PointGlassViewer(
-  transform: transform,
+  camera: camera,
   mode: PointGlassViewerMode.rotate,
   grid: PointGlassGrid(
     enable: true,
@@ -90,6 +90,32 @@ PointGlassViewer(
   pointsGroup: [
     PointGlassPoints(enable: true, points: []),
   ],
+)
+```
+
+## Migration Guide
+
+### From 0.0.x to 1.0.0
+
+```dart
+// Before (0.0.x)
+final transform = ValueNotifier(
+  Transform3D(scale: 50, rotationX: 0, rotationY: 0, rotationZ: 0),
+);
+
+PointGlassViewer(
+  transform: transform,
+  // ...
+)
+
+// After (1.0.0)
+final camera = ValueNotifier(
+  PinholeCamera(cameraZ: 500, yaw: 0, pitch: 0, roll: 0),
+);
+
+PointGlassViewer(
+  camera: camera,
+  // ...
 )
 ```
 
