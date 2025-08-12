@@ -45,6 +45,8 @@ class _MyHomePageState extends State<MyHomePage> {
     // 삼각형
     PointGlassPolygon(
       enable: true,
+      enableLabel: true,
+      labelGroupIndex: 100,
       points: [
         vm.Vector3(-15, -10, 0),
         vm.Vector3(-19.33, -2.5, 0),
@@ -65,8 +67,13 @@ class _MyHomePageState extends State<MyHomePage> {
   double annualSectorOuterRadius = 4;
 
   // 필요 시 여기서 Transform3D 초기값 설정
-  ValueNotifier<Transform3D> transform = ValueNotifier(
-    Transform3D(scale: 50, rotationX: 0, rotationY: 0, rotationZ: 0),
+  ValueNotifier<ViewContext> viewContext = ValueNotifier(
+    ViewContext(
+      model: ModelTransform(),
+      camera: PinholeCamera(cameraZ: 10),
+      proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+      canvasCenter: Offset(0, 0),
+    ),
   );
 
   List<PointGlassPoints> pointsGroup = [
@@ -160,7 +167,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               flex: 5,
               child: PointGlassViewer(
-                transform: transform,
+                viewContext: viewContext,
                 mode: viewMode,
                 grid: PointGlassGrid(
                   enable: true,
@@ -521,11 +528,11 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Text('Reset'),
               onPressed: () {
                 setState(() {
-                  transform.value = Transform3D(
-                    scale: 50,
-                    rotationX: 0,
-                    rotationY: 0,
-                    rotationZ: 0,
+                  viewContext.value = ViewContext(
+                    model: ModelTransform(),
+                    camera: PinholeCamera(cameraZ: 10),
+                    proj: PinholeProjection(focalPx: 800, near: 1, far: 20000),
+                    canvasCenter: Offset(0, 0),
                   );
                 });
               },
@@ -538,8 +545,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget _transformListener() {
-    return ValueListenableBuilder<Transform3D>(
-      valueListenable: transform,
+    return ValueListenableBuilder<ViewContext>(
+      valueListenable: viewContext,
       builder: (context, value, child) {
         return Column(
           children: [
@@ -549,7 +556,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const Spacer(),
                 Expanded(
                   child: label(
-                    'Scale: ${transform.value.scale.toStringAsFixed(1)}',
+                    'Scale: ${(viewContext.value.camera.cameraZ).toStringAsFixed(5)}',
                   ),
                 ),
               ],
@@ -559,7 +566,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const Spacer(flex: 2),
                 Expanded(
                   child: label(
-                    'Rotation X: ${transform.value.rotationX.toStringAsFixed(1)}',
+                    'Rotation X: ${viewContext.value.camera.yaw.toStringAsFixed(1)}',
                   ),
                 ),
               ],
@@ -569,7 +576,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const Spacer(flex: 2),
                 Expanded(
                   child: label(
-                    'Rotation Y: ${transform.value.rotationY.toStringAsFixed(1)}',
+                    'Rotation Y: ${viewContext.value.camera.pitch.toStringAsFixed(1)}',
                   ),
                 ),
               ],
@@ -579,7 +586,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 const Spacer(flex: 2),
                 Expanded(
                   child: label(
-                    'Rotation Z: ${transform.value.rotationZ.toStringAsFixed(1)}',
+                    'Rotation Z: ${viewContext.value.camera.roll.toStringAsFixed(1)}',
                   ),
                 ),
               ],
