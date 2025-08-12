@@ -1,3 +1,11 @@
+## 1.0.0
+
+* Breaking changes: Transform3D class removed and replaced with PinholeCamera architecture
+* Performance optimization: Added matrix caching system for real-time rendering
+* Fixed PointGlassAnnualSectorPainter crash with empty lists
+* Improved 3D graphics pipeline with standard architecture
+* Enhanced code maintainability and stability
+
 ## 0.0.1
 
 * Initial release
