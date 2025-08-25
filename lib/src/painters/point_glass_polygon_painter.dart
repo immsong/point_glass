@@ -84,47 +84,31 @@ class PointGlassPolygonPainter {
 
       canvas.drawPath(path, planePaint);
 
+      var linePaint = Paint()
+        ..color = polygon.lineColor.withAlpha(polygon.lineAlpha)
+        ..strokeWidth = polygon.strokeWidth
+        ..style = PaintingStyle.stroke;
+
       if (polygon.selectedPolygon) {
-        for (var i = 0; i < polygon.points.length - 1; i++) {
-          final point1 = viewContext.projectModel(
-            polygon.points[i].x,
-            polygon.points[i].y,
-            polygon.points[i].z,
-          );
-          final point2 = viewContext.projectModel(
-            polygon.points[i + 1].x,
-            polygon.points[i + 1].y,
-            polygon.points[i + 1].z,
-          );
+        linePaint = Paint()
+          ..color = polygon.color
+          ..strokeWidth = polygon.strokeWidth * 2
+          ..style = PaintingStyle.stroke;
+      } else {
+        polygon.hoveredVertexIndex = -1;
+        polygon.selectedVertexIndex = -1;
+      }
 
-          if (point1.p == null || point2.p == null) {
-            continue;
-          }
-
-          canvas.drawLine(
-            point1.p!,
-            point2.p!,
-            Paint()
-              ..color = polygon.color
-              ..strokeWidth = polygon.strokeWidth * 2
-              ..style = PaintingStyle.stroke,
-          );
-        }
-
+      for (var i = 0; i < polygon.points.length - 1; i++) {
         final point1 = viewContext.projectModel(
-          polygon.points[polygon.points.length - 1].x,
-          polygon.points[polygon.points.length - 1].y,
-          polygon.points[polygon.points.length - 1].z,
+          polygon.points[i].x,
+          polygon.points[i].y,
+          polygon.points[i].z,
         );
-
-        if (point1.p == null) {
-          continue;
-        }
-
         final point2 = viewContext.projectModel(
-          polygon.points[0].x,
-          polygon.points[0].y,
-          polygon.points[0].z,
+          polygon.points[i + 1].x,
+          polygon.points[i + 1].y,
+          polygon.points[i + 1].z,
         );
 
         if (point1.p == null || point2.p == null) {
@@ -134,15 +118,35 @@ class PointGlassPolygonPainter {
         canvas.drawLine(
           point1.p!,
           point2.p!,
-          Paint()
-            ..color = polygon.color
-            ..strokeWidth = polygon.strokeWidth * 2
-            ..style = PaintingStyle.stroke,
+          linePaint,
         );
-      } else {
-        polygon.hoveredVertexIndex = -1;
-        polygon.selectedVertexIndex = -1;
       }
+
+      final point1 = viewContext.projectModel(
+        polygon.points[polygon.points.length - 1].x,
+        polygon.points[polygon.points.length - 1].y,
+        polygon.points[polygon.points.length - 1].z,
+      );
+
+      if (point1.p == null) {
+        continue;
+      }
+
+      final point2 = viewContext.projectModel(
+        polygon.points[0].x,
+        polygon.points[0].y,
+        polygon.points[0].z,
+      );
+
+      if (point1.p == null || point2.p == null) {
+        continue;
+      }
+
+      canvas.drawLine(
+        point1.p!,
+        point2.p!,
+        linePaint,
+      );
 
       if (polygon.pointSize <= 0.0) {
         continue;

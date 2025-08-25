@@ -22,6 +22,12 @@ class PointGlassAnnualSector extends PointGlassGeometry {
   /// 선 투명도
   int lineAlpha;
 
+  /// innder 선 표시 여부
+  bool showInnerLine;
+
+  /// outer 선 표시 여부
+  bool showOuterLine;
+
   PointGlassAnnualSector({
     super.enable,
     super.color, // 면 색상
@@ -33,5 +39,7 @@ class PointGlassAnnualSector extends PointGlassGeometry {
     this.outerRadius = 0.0,
     this.lineColor = Colors.white,
     this.lineAlpha = 255,
+    this.showInnerLine = true,
+    this.showOuterLine = true,
   });
 }
