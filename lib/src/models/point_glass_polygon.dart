@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:io' if (dart.library.html) 'dart:html' as io;
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -18,6 +18,12 @@ class PointGlassPolygon extends PointGlassGeometry {
 
   /// 꼭지점 색상
   Color pointColor;
+
+  /// Line 색상
+  Color lineColor;
+
+  /// Line 투명도
+  int lineAlpha;
 
   /// 수정 가능 여부, 수정 시 Z 값이 0이라고 가정 후 계산
   bool isEditable;
@@ -45,6 +51,8 @@ class PointGlassPolygon extends PointGlassGeometry {
     this.points = const [],
     this.pointSize = 0.0,
     this.pointColor = Colors.yellow,
+    this.lineColor = Colors.red,
+    this.lineAlpha = 0,
     this.isEditable = false,
     this.selectedPolygon = false,
     this.selectedVertexIndex = -1,
@@ -81,7 +89,7 @@ class PointGlassPolygon extends PointGlassGeometry {
   // Z 값 0으로 가정
   int? getClickedVertexIndex(double x, double y) {
     double threshold = 0.5;
-    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    if (!kIsWeb && (io.Platform.isAndroid || io.Platform.isIOS)) {
       threshold = 1;
     }
 
