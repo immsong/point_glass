@@ -18,6 +18,12 @@ class PointGlassPolygon extends PointGlassGeometry {
   /// 꼭지점 색상
   Color pointColor;
 
+  /// Line 색상
+  Color lineColor;
+
+  /// Line 투명도
+  int lineAlpha;
+
   /// 수정 가능 여부, 수정 시 Z 값이 0이라고 가정 후 계산
   bool isEditable;
 
@@ -44,6 +50,8 @@ class PointGlassPolygon extends PointGlassGeometry {
     this.points = const [],
     this.pointSize = 0.0,
     this.pointColor = Colors.yellow,
+    this.lineColor = Colors.red,
+    this.lineAlpha = 0,
     this.isEditable = false,
     this.selectedPolygon = false,
     this.selectedVertexIndex = -1,
