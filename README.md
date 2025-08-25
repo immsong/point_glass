@@ -36,7 +36,7 @@ Add this to your package's `pubspec.yaml` file:
  
 ```yaml
 dependencies:
-  point_glass: ^1.0.0
+  point_glass: ^1.1.0
 ```
 
 ## Usage
@@ -79,6 +79,8 @@ PointGlassViewer(
       pointSize: 3,
       pointColor: Colors.red,
       isEditable: false,
+      lineColor: Colors.cyan,
+      lineAlpha: 100,
     ),
   ],
   annualSectors: [
@@ -90,6 +92,8 @@ PointGlassViewer(
       outerRadius: 4,
       color: Colors.green,
       alpha: 30,
+      showInnerLine: true,
+      showOuterLine: false,
     ),
   ],
   pointsGroup: [
@@ -97,6 +101,18 @@ PointGlassViewer(
   ],
 )
 ```
+
+## Interaction Guide
+
+### Platform-Specific Controls
+
+**Polygon Editing:**
+- **Desktop**: Right-click to select and edit polygons
+- **Web/Mobile**: Long press to select and edit polygons
+
+**View Controls:**
+- **Desktop**: Mouse drag to rotate/translate, scroll to zoom
+- **Web/Mobile**: Touch drag to rotate/translate, pinch to zoom
 
 ## Migration Guide
 
