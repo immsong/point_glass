@@ -1,7 +1,6 @@
-import 'dart:io';
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+import 'package:universal_platform/universal_platform.dart';
 
 import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
@@ -75,7 +74,7 @@ class PointGlassViewer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // 웹은 데스크톱 방식 사용
-    if (kIsWeb || Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    if (UniversalPlatform.isWeb || UniversalPlatform.isDesktop) {
       return PointGlassViewerDesktop(
         viewContext: viewContext,
         contextStyle: contextStyle,
