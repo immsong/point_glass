@@ -1,3 +1,9 @@
+## 1.1.0
+
+* Added polygon line color support with customizable lineColor and lineAlpha properties
+* Enhanced annual sector display with inner/outer line visibility controls (showInnerLine, showOuterLine)
+* Refactored platform detection to use universal_platform package (removed dart:io dependency)
+
 ## 1.0.1
 
 * Fixed README documentation with correct API usage
