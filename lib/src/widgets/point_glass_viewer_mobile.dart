@@ -41,7 +41,7 @@ class _PointGlassViewerMobileState
             _handleMobileDoubleTap(details.localPosition, center);
           },
           onLongPressStart: (details) {
-            _handleMobileLongPress(details.localPosition, center);
+            _handleMobileLongPress(details, center);
           },
           onScaleStart: (details) {
             _handleMobileScaleStart(details.localFocalPoint, center);
@@ -94,7 +94,7 @@ class _PointGlassViewerMobileState
   }
 
   // Polygon 편집 메뉴 표시를 위한 길게 누르기
-  void _handleMobileLongPress(Offset localPosition, Offset center) {
+  void _handleMobileLongPress(LongPressStartDetails details, Offset center) {
     if (widget.mode != PointGlassViewerMode.editPolygon) {
       return;
     }
@@ -103,8 +103,8 @@ class _PointGlassViewerMobileState
       return;
     }
 
-    final x = localPosition.dx - center.dx;
-    final y = localPosition.dy - center.dy;
+    final x = details.localPosition.dx - center.dx;
+    final y = details.localPosition.dy - center.dy;
     final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
     if (point == null) {
       return;
@@ -135,10 +135,10 @@ class _PointGlassViewerMobileState
     showMenu(
       context: context,
       position: RelativeRect.fromLTRB(
-        localPosition.dx,
-        localPosition.dy,
-        localPosition.dx,
-        localPosition.dy,
+        details.globalPosition.dx,
+        details.globalPosition.dy,
+        details.globalPosition.dx,
+        details.globalPosition.dy,
       ),
       color: widget.contextStyle.backgroundColor,
       items: [

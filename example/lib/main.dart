@@ -55,6 +55,8 @@ class _MyHomePageState extends State<MyHomePage> {
       pointSize: 3,
       pointColor: Colors.red,
       isEditable: false,
+      lineColor: Colors.blue,
+      lineAlpha: 100,
     ),
   ];
   bool polygonOnOff = true;
@@ -189,6 +191,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     alpha: 30,
                     lineColor: Colors.green,
                     lineAlpha: 255,
+                    showInnerLine: false,
+                    showOuterLine: true,
                   ),
                 ],
                 pointsGroup: pointsGroup,

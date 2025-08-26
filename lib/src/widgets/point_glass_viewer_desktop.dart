@@ -103,7 +103,7 @@ class _PointGlassViewerDesktopState
       if (details.buttons == kSecondaryMouseButton) {
         // web의 경우 오른쪽 클릭 시 웹의 기본 메뉴가 표시되므로 Long Press 로 처리
         if (!kIsWeb) {
-          _handleMouseSecondaryClick(details.localPosition, center);
+          _handleMouseSecondaryClick(details, center);
         }
       }
 
@@ -112,7 +112,7 @@ class _PointGlassViewerDesktopState
 
     _longPressTimer?.cancel();
     _longPressTimer = Timer(Duration(milliseconds: 500), () {
-      _handleMouseSecondaryClick(details.localPosition, center);
+      _handleMouseSecondaryClick(details, center);
     });
 
     Offset localPosition = details.localPosition;
@@ -222,7 +222,7 @@ class _PointGlassViewerDesktopState
 
   // Polygon 편집 메뉴 표시를 위한 오른쪽 클릭
   // Web 에서는 오른쪽 클릭 시 웹의 기본 메뉴가 표시되므로 Long Press 로 처리
-  void _handleMouseSecondaryClick(Offset localPosition, Offset center) {
+  void _handleMouseSecondaryClick(PointerDownEvent details, Offset center) {
     if (widget.mode != PointGlassViewerMode.editPolygon) {
       return;
     }
@@ -231,8 +231,8 @@ class _PointGlassViewerDesktopState
       return;
     }
 
-    final x = localPosition.dx - center.dx;
-    final y = localPosition.dy - center.dy;
+    final x = details.localPosition.dx - center.dx;
+    final y = details.localPosition.dy - center.dy;
     final point = widget.viewContext.value.screenToModelZ0(sx: x, sy: y);
 
     if (point == null) {
@@ -268,10 +268,10 @@ class _PointGlassViewerDesktopState
     showMenu(
       context: context,
       position: RelativeRect.fromLTRB(
-        localPosition.dx,
-        localPosition.dy,
-        localPosition.dx,
-        localPosition.dy,
+        details.position.dx,
+        details.position.dy,
+        details.position.dx,
+        details.position.dy,
       ),
       color: widget.contextStyle.backgroundColor,
       items: [
