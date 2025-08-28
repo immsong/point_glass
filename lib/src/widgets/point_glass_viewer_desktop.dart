@@ -51,16 +51,26 @@ class _PointGlassViewerDesktopState
       if (event.logicalKey == LogicalKeyboardKey.shiftLeft ||
           event.logicalKey == LogicalKeyboardKey.shiftRight) {
         setState(() {
-          _isShiftPressed = event is KeyDownEvent;
+          if (event is KeyDownEvent || event is KeyRepeatEvent) {
+            _isShiftPressed = true;
+          } else if (event is KeyUpEvent) {
+            _isShiftPressed = false;
+          }
         });
+
         return true;
       }
 
       if (event.logicalKey == LogicalKeyboardKey.controlLeft ||
           event.logicalKey == LogicalKeyboardKey.controlRight) {
         setState(() {
-          _isCtrlPressed = event is KeyDownEvent;
+          if (event is KeyDownEvent || event is KeyRepeatEvent) {
+            _isCtrlPressed = true;
+          } else if (event is KeyUpEvent) {
+            _isCtrlPressed = false;
+          }
         });
+
         return true;
       }
       return false;
