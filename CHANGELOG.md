@@ -1,3 +1,8 @@
+## 1.1.1
+
+* Fixed incorrect right-click coordinates caused by left sidebar positioning
+* Fixed Shift/Ctrl hold state breaking during key repeat on Windows
+
 ## 1.1.0
 
 * Added polygon line color support with customizable lineColor and lineAlpha properties
