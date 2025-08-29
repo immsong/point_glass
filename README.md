@@ -36,7 +36,7 @@ Add this to your package's `pubspec.yaml` file:
  
 ```yaml
 dependencies:
-  point_glass: ^1.1.0
+  point_glass: ^1.1.1
 ```
 
 ## Usage
