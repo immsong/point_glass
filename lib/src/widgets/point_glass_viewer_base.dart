@@ -9,6 +9,7 @@ import 'package:point_glass/src/models/point_glass_types.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/painters/point_glass_painter.dart';
 import 'package:point_glass/src/models/point_glass_points.dart';
+import 'package:point_glass/src/models/point_glass_raw_points.dart';
 import 'package:point_glass/src/utils/view_context.dart';
 
 abstract class PointGlassViewerBase extends StatefulWidget {
@@ -24,6 +25,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
     this.polygons,
     this.annualSectors,
     this.pointsGroup,
+    this.rawPointsGroup,
   });
 
   final ValueNotifier<ViewContext> viewContext;
@@ -36,6 +38,7 @@ abstract class PointGlassViewerBase extends StatefulWidget {
   final List<PointGlassPolygon>? polygons;
   final List<PointGlassAnnualSector>? annualSectors;
   final List<PointGlassPoints>? pointsGroup;
+  final List<PointGlassRawPoints>? rawPointsGroup;
 }
 
 abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
@@ -67,16 +70,20 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
       final newPitch =
           (widget.viewContext.value.camera.pitch - delta.dy * -degPerPx);
       widget.viewContext.value = widget.viewContext.value.copyWith(
-        camera: widget.viewContext.value.camera
-            .copyWith(yaw: newYaw, pitch: newPitch),
+        camera: widget.viewContext.value.camera.copyWith(
+          yaw: newYaw,
+          pitch: newPitch,
+        ),
       );
     });
   }
 
   void scaleUpdate(double scale) {
     setState(() {
-      final newZ = (widget.viewContext.value.camera.cameraZ / scale)
-          .clamp(widget.minScale, widget.maxScale);
+      final newZ = (widget.viewContext.value.camera.cameraZ / scale).clamp(
+        widget.minScale,
+        widget.maxScale,
+      );
       widget.viewContext.value = widget.viewContext.value.copyWith(
         camera: widget.viewContext.value.camera.copyWith(cameraZ: newZ),
       );
@@ -99,12 +106,11 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
         continue;
       }
 
-      final worldDelta =
-          widget.viewContext.value.screenToModelZ0(sx: delta.dx, sy: delta.dy);
-      final origin = widget.viewContext.value.screenToModelZ0(
-        sx: 0.0,
-        sy: 0.0,
+      final worldDelta = widget.viewContext.value.screenToModelZ0(
+        sx: delta.dx,
+        sy: delta.dy,
       );
+      final origin = widget.viewContext.value.screenToModelZ0(sx: 0.0, sy: 0.0);
 
       if (worldDelta == null || origin == null) {
         continue;
@@ -142,6 +148,7 @@ abstract class PointGlassViewerBaseState<T extends PointGlassViewerBase>
           polygons: widget.polygons ?? [],
           annualSectors: widget.annualSectors ?? [],
           pointsGroup: widget.pointsGroup ?? [],
+          rawPointsGroup: widget.rawPointsGroup ?? [],
         ),
       ),
     );

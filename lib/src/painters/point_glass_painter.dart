@@ -4,12 +4,14 @@ import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
 import 'package:point_glass/src/models/point_glass_points.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
+import 'package:point_glass/src/models/point_glass_raw_points.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/painters/point_glass_axis_painter.dart';
 import 'package:point_glass/src/painters/point_glass_grid_painter.dart';
 import 'package:point_glass/src/painters/point_glass_points_painter.dart';
 import 'package:point_glass/src/painters/point_glass_polygon_painter.dart';
 import 'package:point_glass/src/painters/point_glass_annual_sector_painter.dart';
+import 'package:point_glass/src/painters/point_glass_raw_points_painter.dart';
 import 'package:point_glass/src/utils/view_context.dart';
 
 class PointGlassPainter extends CustomPainter {
@@ -19,12 +21,14 @@ class PointGlassPainter extends CustomPainter {
   final List<PointGlassPolygon> polygons;
   final List<PointGlassAnnualSector> annualSectors;
   final List<PointGlassPoints> pointsGroup;
+  final List<PointGlassRawPoints> rawPointsGroup;
 
   late PointGlassGridPainter gridPainter;
   late PointGlassAxisPainter axisPainter;
   late PointGlassPolygonPainter polygonPainter;
   late PointGlassAnnualSectorPainter annualSectorPainter;
   late PointGlassPointsPainter pointsGroupPainter;
+  late PointGlassRawPointsPainter rawPointsGroupPainter;
 
   PointGlassPainter({
     required this.viewContext,
@@ -33,11 +37,9 @@ class PointGlassPainter extends CustomPainter {
     required this.polygons,
     required this.annualSectors,
     required this.pointsGroup,
+    required this.rawPointsGroup,
   }) {
-    gridPainter = PointGlassGridPainter(
-      grid: grid,
-      viewContext: viewContext,
-    );
+    gridPainter = PointGlassGridPainter(grid: grid, viewContext: viewContext);
     axisPainter = PointGlassAxisPainter(viewContext: viewContext, axis: axis);
     polygonPainter = PointGlassPolygonPainter(
       viewContext: viewContext,
@@ -50,6 +52,10 @@ class PointGlassPainter extends CustomPainter {
     pointsGroupPainter = PointGlassPointsPainter(
       viewContext: viewContext,
       pointsGroup: pointsGroup,
+    );
+    rawPointsGroupPainter = PointGlassRawPointsPainter(
+      viewContext: viewContext,
+      rawPointsGroup: rawPointsGroup,
     );
   }
 
@@ -82,6 +88,11 @@ class PointGlassPainter extends CustomPainter {
     if (pointsGroup.isNotEmpty) {
       // 각 PointsGroup 안에서 enable 체크
       pointsGroupPainter.draw(canvas, size);
+    }
+
+    if (rawPointsGroup.isNotEmpty) {
+      // 각 RawPointsGroup 안에서 enable 체크
+      rawPointsGroupPainter.draw(canvas, size);
     }
 
     canvas.restore();
