@@ -18,6 +18,7 @@ class PointGlassViewerMobile extends PointGlassViewerBase {
     super.polygons,
     super.annualSectors,
     super.pointsGroup,
+    super.rawPointsGroup,
   });
 
   @override
@@ -118,10 +119,7 @@ class _PointGlassViewerMobileState
         continue;
       }
 
-      int? vertexIdx = polygon.getClickedVertexIndex(
-        point.x,
-        point.y,
-      );
+      int? vertexIdx = polygon.getClickedVertexIndex(point.x, point.y);
 
       if (vertexIdx != null && polygon.points.length <= 3) {
         continue;
@@ -208,10 +206,7 @@ class _PointGlassViewerMobileState
         continue;
       }
 
-      int? vertexIdx = polygon.getClickedVertexIndex(
-        point.x,
-        point.y,
-      );
+      int? vertexIdx = polygon.getClickedVertexIndex(point.x, point.y);
       if (vertexIdx != null) {
         isDraggingPolygon = true;
         polygon.selectedVertexIndex = vertexIdx;

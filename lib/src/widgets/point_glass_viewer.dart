@@ -6,6 +6,7 @@ import 'package:point_glass/src/models/point_glass_axis.dart';
 import 'package:point_glass/src/models/point_glass_grid.dart';
 import 'package:point_glass/src/models/point_glass_points.dart';
 import 'package:point_glass/src/models/point_glass_polygon.dart';
+import 'package:point_glass/src/models/point_glass_raw_points.dart';
 import 'package:point_glass/src/models/point_glass_types.dart';
 import 'package:point_glass/src/models/point_glass_annual_sector.dart';
 import 'package:point_glass/src/utils/view_context.dart';
@@ -40,6 +41,7 @@ class PointGlassViewer extends StatelessWidget {
     this.polygons,
     this.annualSectors,
     this.pointsGroup,
+    this.rawPointsGroup,
   });
 
   final ValueNotifier<ViewContext> viewContext;
@@ -71,6 +73,9 @@ class PointGlassViewer extends StatelessWidget {
   /// 3D 포인트 클라우드의 설정을 정의하는 클래스입니다.
   final List<PointGlassPoints>? pointsGroup;
 
+  /// Float32List 기반 로우 포인트 클라우드 데이터입니다.
+  final List<PointGlassRawPoints>? rawPointsGroup;
+
   @override
   Widget build(BuildContext context) {
     // 웹은 데스크톱 방식 사용
@@ -86,6 +91,7 @@ class PointGlassViewer extends StatelessWidget {
         polygons: polygons,
         annualSectors: annualSectors,
         pointsGroup: pointsGroup,
+        rawPointsGroup: rawPointsGroup,
       );
     } else {
       return PointGlassViewerMobile(
@@ -99,6 +105,7 @@ class PointGlassViewer extends StatelessWidget {
         polygons: polygons,
         annualSectors: annualSectors,
         pointsGroup: pointsGroup,
+        rawPointsGroup: rawPointsGroup,
       );
     }
   }
