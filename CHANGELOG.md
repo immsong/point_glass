@@ -1,3 +1,9 @@
+## 1.2.0
+
+* Added `PointGlassRawPoints` model for Float32List-based raw point cloud rendering with configurable stride and field mapping
+* Added `ColorMap` enum (turbo, rainbow) with `colorMapToColor` utility for value-based color mapping
+* Added `rawPointsGroup` parameter to `PointGlassViewer` for high-performance raw point cloud display
+
 ## 1.1.1
 
 * Fixed incorrect right-click coordinates caused by left sidebar positioning
